@@ -1,6 +1,7 @@
-package com.example.tpkotlin
+package com.example.tpkotlin.data.Entities
 
 import androidx.annotation.DrawableRes
+
 
 data class Product(
     val _id: String,

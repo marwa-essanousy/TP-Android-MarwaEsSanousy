@@ -1,4 +1,4 @@
-package com.example.tpkotlin
+package com.example.tpkotlin.ui.product.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tpkotlin.data.Entities.Product
 
 @Composable
 fun ProductDetailsScreen(product: Product) {
@@ -65,4 +66,3 @@ fun ProductDetailsScreen(product: Product) {
         )
     }
 }
-
