@@ -4,9 +4,7 @@ package com.example.tpkotlin.ui.product.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,10 +29,12 @@ fun ProductsList(products: List<Product>, onNavigateToDetails: (Int) -> Unit) {
     ) {
         Text(
             text = "Explore Our Cosmetic Collection",
-            fontSize = 20.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Normal,
-            modifier = Modifier.padding(bottom = 16.dp)
+            fontStyle = FontStyle.Italic,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .align(Alignment.Start)
         )
 
         LazyColumn(

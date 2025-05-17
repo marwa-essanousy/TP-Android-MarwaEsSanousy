@@ -31,7 +31,7 @@ fun ProductItem(product: Product, onNavigateToDetails: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp, horizontal = 12.dp)
+            .padding(vertical = 2.dp)
             .clickable {
                 onNavigateToDetails(product.productId)
             },
@@ -40,15 +40,18 @@ fun ProductItem(product: Product, onNavigateToDetails: (Int) -> Unit) {
     ) {
         Row(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(12.dp)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
             Image(
                 painter = painterResource(id = product.productImage),
                 contentDescription = product.productTitle,
                 modifier = Modifier
                     .size(100.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(16.dp))
             )
 
             Spacer(modifier = Modifier.width(16.dp))
