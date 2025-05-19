@@ -5,8 +5,9 @@ package com.example.tpkotlin.data.Repository
 import com.example.tpkotlin.R
 import com.example.tpkotlin.data.Entities.Product
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
-class ProductRepository {
+class ProductRepository @Inject constructor(){
     suspend fun getProducts(): List<Product> {
         // Simulate fetching data from a remote server or database
         delay(2000)
