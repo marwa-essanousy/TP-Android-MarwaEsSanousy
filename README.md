@@ -1,13 +1,13 @@
 Marwa Es Sanousy
 
 
-Application Android développée en Kotlin avec Jetpack Compose pour présenter des produits cosmétiques.
+Application Android développée en Kotlin avec Jetpack Compose pour présenter des produits cosmétiques avec architecture MVI.
 
 
 Liste Produits
 
+![WhatsApp Image 2025-05-17 at 21 23 13_2d615532](https://github.com/user-attachments/assets/6a0c0621-c839-455b-a79a-114387d441b5)
 
-![WhatsApp Image 2025-05-04 at 21 56 03_2f2f9211](https://github.com/user-attachments/assets/e2a7d5f6-32a8-4639-a0d0-6f25e9353b38)
 
 
 Détail Produit
