@@ -27,8 +27,9 @@ fun AppNavigation(viewModel: ProductViewModel) {
 
         composable(Routes.Home) {
             HomeScreen(viewModel, onNavigateToDetails = { productId ->
-                navController.navigate("${Routes.ProductDetails}/$productId")
-            })
+                navController.navigate("${Routes.ProductDetails}/$productId", )
+            },   onFavoriteClick = { productId ->
+                viewModel.toggleFavorite(productId)})
         }
 
         composable(

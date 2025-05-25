@@ -15,7 +15,13 @@ class ProductViewModel @Inject constructor(private val repository: ProductReposi
 
     private val _state = MutableStateFlow(ProductViewState())
     val state: StateFlow<ProductViewState> = _state
-
+    fun toggleFavorite(productId: Int) {
+        _state.value = _state.value.copy(
+            products = _state.value.products.map {
+                if (it.productId == productId) it.copy(isFavorite = !it.isFavorite) else it
+            }
+        )
+    }
     fun handleIntent(intent: ProductIntent) {
         when (intent) {
             is ProductIntent.LoadProducts -> {
