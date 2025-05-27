@@ -1,92 +1,90 @@
 package com.example.tpkotlin.ui.product.screens
 
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tpkotlin.ui.product.ProductIntent
 import com.example.tpkotlin.ui.product.ProductViewModel
+import com.example.tpkotlin.ui.product.component.BottomNavBar
 import com.example.tpkotlin.ui.product.component.ProductsList
 
 @Composable
-fun HomeScreen(viewModel: ProductViewModel = viewModel(), onNavigateToDetails: (Int) -> Unit, onFavoriteClick: (Int) -> Unit) {
+fun HomeScreen(
+    viewModel: ProductViewModel = viewModel(),
+    onNavigateToDetails: (Int) -> Unit,
+    onFavoriteClick: (Int) -> Unit
+) {
     val state by viewModel.state.collectAsState()
+    var selectedIndex by remember { mutableStateOf(0) }
+    val categories = listOf("All", "Tops", "Sweaters", "Socks", "Accessories")
+    var selectedCategory by remember { mutableStateOf(categories[0]) }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(Unit) {
         viewModel.handleIntent(ProductIntent.LoadProducts)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Header attrayant
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFFF9EB5), // Rose pastel
-                            Color(0xFFFFD3B6)  // Peach
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.BottomStart
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "Explore Our Collection",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Discover our premium cosmetic products",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
-            }
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                selectedIndex = selectedIndex,
+                onItemSelected = { index -> selectedIndex = index }
+            )
         }
-
-        // Contenu principal
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(innerPadding)
+                .background(Color.White)
         ) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(categories) { category ->
+                    Text(
+                        text = category,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (category == selectedCategory) MaterialTheme.colorScheme.primary else Color.Gray,
+                        modifier = Modifier
+                            .clickable { selectedCategory = category }
+                            .padding(vertical = 8.dp)
+                    )
+                }
+            }
+
             when {
                 state.isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(CenterHorizontally))
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
                 state.error != null -> {
-                    Text(text = "Error: ${state.error}", color = Color.Red)
+                    Text(
+                        text = "Error: ${state.error}",
+                        color = Color.Red,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
                 else -> {
-                    ProductsList(products = state.products, onNavigateToDetails, onFavoriteClick)
+                    ProductsList(
+                        products = if (selectedCategory == "All") state.products
+                        else state.products.filter { it.category == selectedCategory },
+                        onNavigateToDetails = onNavigateToDetails,
+                        onFavoriteClick = onFavoriteClick
+                    )
                 }
             }
         }
