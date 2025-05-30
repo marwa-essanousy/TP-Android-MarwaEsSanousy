@@ -1,13 +1,15 @@
 package com.example.tpkotlin.data.Entities
 
 import androidx.annotation.DrawableRes
+import com.example.tpkotlin.R
+import com.google.gson.annotations.SerializedName
 
 
 data class Product(
-    val _id: String,
+//    val _id: String,
     val productId: Int,
     val productTitle: String,
-    @DrawableRes val productImage:Int,
+    val productImage : String,
     val productPrice: Int,
     val quantity: Int,
     val category: String,

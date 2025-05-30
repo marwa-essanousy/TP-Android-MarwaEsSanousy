@@ -1,6 +1,8 @@
 package com.example.tpkotlin.ui.product.screens
 
 import androidx.compose.foundation.Image
+import coil.compose.rememberImagePainter
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -62,7 +64,7 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = product.productImage),
+                painter = rememberImagePainter(product.productImage),
                 contentDescription = product.productTitle,
                 modifier = Modifier.size(180.dp)
             )
