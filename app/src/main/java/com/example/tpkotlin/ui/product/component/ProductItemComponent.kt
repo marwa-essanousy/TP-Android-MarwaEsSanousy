@@ -1,6 +1,8 @@
 package com.example.tpkotlin.ui.product.component
 
 import androidx.compose.foundation.Image
+import coil.compose.rememberImagePainter
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.example.tpkotlin.data.Entities.Product
 
 @Composable
@@ -72,7 +75,7 @@ fun ProductItem(
             }
 
             Image(
-                painter = painterResource(id = product.productImage),
+                painter = rememberImagePainter(product.productImage),
                 contentDescription = product.productTitle,
                 modifier = Modifier
                     .size(80.dp)
