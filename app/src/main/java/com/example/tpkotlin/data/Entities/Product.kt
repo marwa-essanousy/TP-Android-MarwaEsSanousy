@@ -1,8 +1,6 @@
 package com.example.tpkotlin.data.Entities
 
-import androidx.annotation.DrawableRes
-import com.example.tpkotlin.R
-import com.google.gson.annotations.SerializedName
+
 
 
 data class Product(

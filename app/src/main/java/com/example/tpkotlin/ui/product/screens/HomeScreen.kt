@@ -25,7 +25,7 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
-    val categories = listOf("All", "Tops", "Sweaters", "Socks", "Accessories")
+    val categories = listOf("All", "accessories", "clothing", "shoes")
     var selectedCategory by remember { mutableStateOf(categories[0]) }
 
     LaunchedEffect(Unit) {

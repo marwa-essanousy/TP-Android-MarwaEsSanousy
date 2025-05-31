@@ -2,7 +2,6 @@ package com.example.tpkotlin.ui.product.screens
 
 import androidx.compose.foundation.Image
 import coil.compose.rememberImagePainter
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +52,6 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Image principale du produit
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -66,7 +63,7 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
             Image(
                 painter = rememberImagePainter(product.productImage),
                 contentDescription = product.productTitle,
-                modifier = Modifier.size(180.dp)
+                modifier = Modifier.size(180.dp).clip(RoundedCornerShape(24.dp))
             )
         }
 
@@ -127,21 +124,21 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "Available Colors",
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(bottom = 24.dp)
-        ) {
-            ColorCircle(Color(0xFFFF9800))
-            ColorCircle(Color.Black)
-            ColorCircle(Color(0xFFFFF176))
-            ColorCircle(Color(0xFFFFF3E0))
-        }
+//        Text(
+//            text = "Available Colors",
+//            fontWeight = FontWeight.Medium,
+//            fontSize = 16.sp
+//        )
+//        Spacer(modifier = Modifier.height(8.dp))
+//        Row(
+//            horizontalArrangement = Arrangement.spacedBy(12.dp),
+//            modifier = Modifier.padding(bottom = 24.dp)
+//        ) {
+//            ColorCircle(Color(0xFFFF9800))
+//            ColorCircle(Color.Black)
+//            ColorCircle(Color(0xFFFFF176))
+//            ColorCircle(Color(0xFFFFF3E0))
+//        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
