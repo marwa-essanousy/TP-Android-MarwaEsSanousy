@@ -1,18 +1,24 @@
 Marwa Es Sanousy
 
 
-Application Android développée en Kotlin avec Jetpack Compose pour présenter des produits cosmétiques avec architecture MVI.
+🛒 E-Commerce Android App
+
+Une application mobile e-commerce développée en Kotlin utilisant **Jetpack Compose, l'architecture MVI, et Retrofit pour la récupération des produits depuis une API.
+
+Cette image représente la liste des produits.
+
+On y voit plusieurs cartes de produits affichées en grille, avec leur image, nom, prix.
+
+![image](https://github.com/user-attachments/assets/fc730b9a-ee72-4f56-9c17-de081e8f0096)
 
 
-Liste Produits
 
-![WhatsApp Image 2025-05-17 at 21 23 13_2d615532](https://github.com/user-attachments/assets/6a0c0621-c839-455b-a79a-114387d441b5)
-
-
-
-Détail Produit
+Cette image représente l’écran de détails d’un produit.
+Lorsqu’un utilisateur clique sur un produit, il est redirigé vers cette page.
+On y voit une grande image du produit, son nom, sa description, son prix, et un bouton "Add to Cart".
 
 
-![WhatsApp Image 2025-05-04 at 21 56 35_c8be9141](https://github.com/user-attachments/assets/8ca81419-e5fb-4235-868d-a9f9441d93ed)
+
+![image](https://github.com/user-attachments/assets/6dc799c7-7e90-40a0-bbf9-b1b6f41cb18e)
 
 
