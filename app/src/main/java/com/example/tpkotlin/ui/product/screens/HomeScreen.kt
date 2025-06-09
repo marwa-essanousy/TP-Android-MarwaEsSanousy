@@ -21,7 +21,8 @@ import com.example.tpkotlin.ui.product.component.ProductsList
 fun HomeScreen(
     viewModel: ProductViewModel = viewModel(),
     onNavigateToDetails: (Int) -> Unit,
-    onFavoriteClick: (Int) -> Unit
+    onFavoriteClick: (Int) -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
@@ -36,7 +37,10 @@ fun HomeScreen(
         bottomBar = {
             BottomNavBar(
                 selectedIndex = selectedIndex,
-                onItemSelected = { index -> selectedIndex = index }
+                onItemSelected = { index ->
+                    selectedIndex = index
+                    if (index == 2) onProfileClick()
+                }
             )
         }
     ) { innerPadding ->
