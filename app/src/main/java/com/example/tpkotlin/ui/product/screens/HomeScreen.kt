@@ -22,7 +22,8 @@ fun HomeScreen(
     viewModel: ProductViewModel = viewModel(),
     onNavigateToDetails: (Int) -> Unit,
     onFavoriteClick: (Int) -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onCartClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
@@ -39,7 +40,11 @@ fun HomeScreen(
                 selectedIndex = selectedIndex,
                 onItemSelected = { index ->
                     selectedIndex = index
-                    if (index == 2) onProfileClick()
+                    when (index) {
+                        0 -> {} // Home
+                        2 -> onCartClick()    // 👈 redirige vers CartScreen
+                        3 -> onProfileClick() // 👈 redirige vers AuthScreen
+                    }
                 }
             )
         }

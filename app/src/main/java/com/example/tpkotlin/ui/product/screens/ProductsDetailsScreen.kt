@@ -20,9 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tpkotlin.data.Entities.Product
+import com.example.tpkotlin.ui.cart.CartIntent
+import com.example.tpkotlin.ui.cart.CartViewModel
 
 @Composable
-fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
+fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewModel: CartViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -159,12 +161,15 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}) {
             }
 
             Button(
-                onClick = {  },
+                onClick = {
+                    cartViewModel.onIntent(CartIntent.AddToCart(product))
+                },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.width(150.dp).height(48.dp)
             ) {
                 Text("Add to cart", fontSize = 16.sp)
             }
+
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,8 +18,9 @@ fun BottomNavBar(
     selectedIndex: Int = 0,
     onItemSelected: (Int) -> Unit
 ) {
-    val items = listOf("Home", "Favorites", "Profile")
-    val icons = listOf(Icons.Default.Home, Icons.Default.Favorite, Icons.Default.Person)
+    val items = listOf("Home", "Favorites", "Cart", "Profile")
+    val icons = listOf(Icons.Default.Home, Icons.Default.Favorite, Icons.Default.ShoppingCart, Icons.Default.Person)
+
 
     NavigationBar(containerColor = Color.White) {
         items.forEachIndexed { index, item ->

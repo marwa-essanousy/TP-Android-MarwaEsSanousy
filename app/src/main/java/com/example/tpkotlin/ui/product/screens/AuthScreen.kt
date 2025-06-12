@@ -1,4 +1,4 @@
-package com.example.tpkotlin.ui.auth
+//package com.example.tpkotlin.ui.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
-fun AuthScreen() {
+fun AuthScreen(onRegisterClick: () -> Unit = {}) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -37,14 +37,21 @@ fun AuthScreen() {
             value = password,
             onValueChange = { password = it },
             label = { Text("Mot de passe") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { /* TODO: appel API ou logique de connexion */ }) {
+        Button(onClick = {
+            // TODO: Connexion
+        }) {
             Text("Se connecter")
+        }
+
+        TextButton(onClick = onRegisterClick) {
+            Text("Créer un compte")
         }
     }
 }
+
