@@ -1,10 +1,9 @@
 package com.example.tpkotlin.ui.cart
 
-
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
-import com.example.tpkotlin.data.Entities.Product
+
 
 class CartViewModel : ViewModel() {
     private val _state = mutableStateOf(CartState())
@@ -14,6 +13,20 @@ class CartViewModel : ViewModel() {
         when (intent) {
             is CartIntent.AddToCart -> {
                 val updatedCart = _state.value.cartItems + intent.product
+                _state.value = _state.value.copy(cartItems = updatedCart)
+            }
+
+            is CartIntent.RemoveOne -> {
+                val updatedCart = _state.value.cartItems.toMutableList()
+                val index = updatedCart.indexOfFirst { it.productId == intent.product.productId }
+                if (index != -1) {
+                    updatedCart.removeAt(index)
+                    _state.value = _state.value.copy(cartItems = updatedCart)
+                }
+            }
+
+            is CartIntent.RemoveFromCart -> {
+                val updatedCart = _state.value.cartItems.filterNot { it.productId == intent.product.productId }
                 _state.value = _state.value.copy(cartItems = updatedCart)
             }
         }

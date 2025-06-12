@@ -17,13 +17,15 @@ import com.example.tpkotlin.ui.product.screens.HomeScreen
 import com.example.tpkotlin.ui.product.screens.ProductDetailsScreen
 import com.example.tpkotlin.ui.product.screens.RegisterScreen
 
+
+
 object Routes {
     const val Home = "home"
     const val ProductDetails = "productDetails"
     const val Auth = "auth"
     const val Register = "register"
     const val Cart = "cart"
-    const val Profile = "profile"
+//    const val Profile = "profile"
 
 
 }
@@ -61,7 +63,7 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
             val productId = productIdStr.toIntOrNull()
             val product = viewModel.state.value.products.find { it.productId == productId }
             if (product != null) {
-                ProductDetailsScreen(product = product, cartViewModel = cartViewModel) // ✅ passe-le ici
+                ProductDetailsScreen(product = product, cartViewModel = cartViewModel)
             } else {
                 Text("Produit non trouvé.")
             }
@@ -75,14 +77,18 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
 
         composable(Routes.Register) {
             RegisterScreen(onLoginClick = {
-                navController.popBackStack() // revient à AuthScreen
+                navController.popBackStack()
             })
         }
 
         composable(Routes.Cart) {
             val cartState = cartViewModel.state.value
-            CartScreen(cartItems = cartState.cartItems)
+            CartScreen(
+                cartItems = cartState.cartItems,
+                cartViewModel = cartViewModel
+            )
         }
+
 
     }
 }

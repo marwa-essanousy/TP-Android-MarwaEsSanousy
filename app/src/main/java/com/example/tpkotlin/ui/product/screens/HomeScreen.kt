@@ -42,8 +42,8 @@ fun HomeScreen(
                     selectedIndex = index
                     when (index) {
                         0 -> {} // Home
-                        2 -> onCartClick()    // 👈 redirige vers CartScreen
-                        3 -> onProfileClick() // 👈 redirige vers AuthScreen
+                        2 -> onCartClick()
+                        3 -> onProfileClick()
                     }
                 }
             )
