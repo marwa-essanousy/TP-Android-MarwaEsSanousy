@@ -9,7 +9,7 @@ class UserRepository {
         return RetrofitInstance.api.register(user)
     }
 
-    suspend fun login(email: String, password: String): Response<UserResponse> {
-        return RetrofitInstance.api.login(LoginRequest(email, password))
+    suspend fun login(request: LoginRequest): Response<LoginResponse> {
+        return RetrofitInstance.api.login(request) // ✅ c’est cette ligne qui était fausse
     }
 }

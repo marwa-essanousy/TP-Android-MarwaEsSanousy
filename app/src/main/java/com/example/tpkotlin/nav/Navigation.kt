@@ -25,7 +25,6 @@ object Routes {
     const val Auth = "auth"
     const val Register = "register"
     const val Cart = "cart"
-//    const val Profile = "profile"
 
 
 }
@@ -70,9 +69,12 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
         }
 
         composable(Routes.Auth) {
-            AuthScreen(onRegisterClick = {
-                navController.navigate(Routes.Register)
-            })
+            AuthScreen(
+                navController = navController,
+                onRegisterClick = {
+                    navController.navigate(Routes.Register)
+                }
+            )
         }
 
         composable(Routes.Register) {

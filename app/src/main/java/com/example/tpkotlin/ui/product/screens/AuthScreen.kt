@@ -1,16 +1,34 @@
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.tpkotlin.ui.product.AuthState
+import com.example.tpkotlin.ui.product.AuthViewModel
 
 @Composable
-fun AuthScreen(onRegisterClick: () -> Unit = {}) {
+fun AuthScreen(
+    navController: NavController,
+    viewModel: AuthViewModel = remember { AuthViewModel() },
+    onRegisterClick: () -> Unit = {}
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val authState by viewModel.authState.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+
+    // Navigation automatique vers Home si connecté
+    if (isLoggedIn) {
+        LaunchedEffect(Unit) {
+            navController.navigate("home") {
+                popUpTo("auth") { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -42,8 +60,19 @@ fun AuthScreen(onRegisterClick: () -> Unit = {}) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (authState is AuthState.Loading) {
+            CircularProgressIndicator()
+        }
+
+        if (authState is AuthState.Error) {
+            Text(
+                text = (authState as AuthState.Error).error,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+
         Button(onClick = {
-            // TODO: Connexion
+            viewModel.login(email, password)
         }) {
             Text("Se connecter")
         }
@@ -53,4 +82,3 @@ fun AuthScreen(onRegisterClick: () -> Unit = {}) {
         }
     }
 }
-

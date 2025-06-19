@@ -1,6 +1,5 @@
 package com.example.tpkotlin.ui.product.screens
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -62,27 +61,38 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (state is AuthState.Loading) {
-            CircularProgressIndicator()
+        when (state) {
+            is AuthState.Loading -> {
+                CircularProgressIndicator()
+            }
+            is AuthState.Error -> {
+                Text(
+                    text = (state as AuthState.Error).error,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            is AuthState.Success -> {
+                Text(
+                    text = (state as AuthState.Success).message,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            else -> { /* Rien à afficher */ }
         }
 
-        Button(onClick = {
-            val nameParts = username.trim().split(" ")
-            val firstName = nameParts.getOrNull(0) ?: ""
-            val lastName = nameParts.getOrNull(1) ?: ""
-            val user = User(firstName, lastName, email, password)
-            viewModel.register(user)
-        }) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                val user = User(username.trim(), email.trim(), password)
+                viewModel.register(user)
+            },
+            enabled = username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+        ) {
             Text("S'inscrire")
         }
 
-        if (state is AuthState.Error) {
-            Text((state as AuthState.Error).error, color = MaterialTheme.colorScheme.error)
-        }
-
-        if (state is AuthState.Success) {
-            Text((state as AuthState.Success).message, color = MaterialTheme.colorScheme.primary)
-        }
+        Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(onClick = onLoginClick) {
             Text("Déjà inscrit ? Se connecter")

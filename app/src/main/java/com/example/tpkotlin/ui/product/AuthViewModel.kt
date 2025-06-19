@@ -3,6 +3,7 @@ package com.example.tpkotlin.ui.product
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tpkotlin.data.Entities.LoginRequest
 import com.example.tpkotlin.data.Entities.User
 import com.example.tpkotlin.data.Repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,33 +28,42 @@ class AuthViewModel : ViewModel() {
             _authState.value = AuthState.Loading
             try {
                 val response = repository.register(user)
-                if (response.isSuccessful && response.body()?.success == true) {
-                    _authState.value = AuthState.Success("Inscription réussie")
+                if (response.isSuccessful) {
+                    val message = response.body()?.message ?: "Inscription réussie"
+                    _authState.value = AuthState.Success(message)
                 } else {
-                    _authState.value = AuthState.Error(response.body()?.error ?: "Erreur inconnue")
+                    // lire le message d’erreur du serveur si disponible
+                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                    _authState.value = AuthState.Error("Erreur : $errorMsg")
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error("Erreur : ${e.localizedMessage}")
             }
         }
     }
+
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn = _isLoggedIn.asStateFlow()
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                val response = repository.login(email, password)
-                if (response.isSuccessful && response.body()?.success == true) {
-                    _authState.value = AuthState.Success("Connexion réussie")
+                val response = repository.login(LoginRequest(email, password))
+                if (response.isSuccessful) {
+                    _authState.value = AuthState.Success(response.body()?.message ?: "Connexion réussie")
+                    _isLoggedIn.value = true
+                    // Optionnel: stocker token ici
                 } else {
-                    _authState.value = AuthState.Error(response.body()?.error ?: "Email ou mot de passe incorrect")
+                    _authState.value = AuthState.Error(response.errorBody()?.string() ?: "Erreur inconnue")
+                    _isLoggedIn.value = false
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error("Erreur : ${e.localizedMessage}")
+                _isLoggedIn.value = false
             }
         }
     }
-
     fun resetState() {
         _authState.value = AuthState.Idle
     }
