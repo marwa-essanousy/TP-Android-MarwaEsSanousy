@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.example.tpkotlin.ui.cart.CartViewModel
 import com.example.tpkotlin.ui.product.ProductViewModel
 import com.example.tpkotlin.ui.product.screens.CartScreen
+import com.example.tpkotlin.ui.product.screens.FavoritesScreen
 import com.example.tpkotlin.ui.product.screens.HomeScreen
 import com.example.tpkotlin.ui.product.screens.ProductDetailsScreen
 import com.example.tpkotlin.ui.product.screens.RegisterScreen
@@ -25,6 +26,7 @@ object Routes {
     const val Auth = "auth"
     const val Register = "register"
     const val Cart = "cart"
+    const val Favorites = "favorites"
 
 
 }
@@ -50,6 +52,9 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
                 },
                 onCartClick = {
                     navController.navigate(Routes.Cart)
+                },
+                onFavoritesClick = {
+                    navController.navigate(Routes.Favorites)
                 }
             )
         }
@@ -66,6 +71,17 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
             } else {
                 Text("Produit non trouvé.")
             }
+        }
+        composable(Routes.Favorites) {
+            FavoritesScreen(
+                viewModel = viewModel,
+                onNavigateToDetails = { productId ->
+                    navController.navigate("${Routes.ProductDetails}/$productId")
+                },
+                onFavoriteClick = { productId ->
+                    viewModel.toggleFavorite(productId)
+                }
+            )
         }
 
         composable(Routes.Auth) {
@@ -88,6 +104,17 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
             CartScreen(
                 cartItems = cartState.cartItems,
                 cartViewModel = cartViewModel
+            )
+        }
+
+
+        composable(Routes.Favorites) {
+            FavoritesScreen(
+                viewModel = viewModel,
+                onFavoriteClick = { productId -> viewModel.toggleFavorite(productId) },
+                onNavigateToDetails = { productId ->
+                    navController.navigate("${Routes.ProductDetails}/$productId")
+                }
             )
         }
 

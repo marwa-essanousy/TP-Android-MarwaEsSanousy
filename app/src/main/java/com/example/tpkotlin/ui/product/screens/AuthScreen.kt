@@ -21,7 +21,6 @@ fun AuthScreen(
     val authState by viewModel.authState.collectAsState()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    // Navigation automatique vers Home si connecté
     if (isLoggedIn) {
         LaunchedEffect(Unit) {
             navController.navigate("home") {
@@ -37,7 +36,7 @@ fun AuthScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Connexion", style = MaterialTheme.typography.headlineSmall)
+        Text("Login", style = MaterialTheme.typography.headlineSmall)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -53,7 +52,7 @@ fun AuthScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Mot de passe") },
+            label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -74,11 +73,11 @@ fun AuthScreen(
         Button(onClick = {
             viewModel.login(email, password)
         }) {
-            Text("Se connecter")
+            Text("Log In")
         }
 
         TextButton(onClick = onRegisterClick) {
-            Text("Créer un compte")
+            Text("Create an Account")
         }
     }
 }

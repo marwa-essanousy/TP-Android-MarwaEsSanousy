@@ -23,7 +23,8 @@ fun HomeScreen(
     onNavigateToDetails: (Int) -> Unit,
     onFavoriteClick: (Int) -> Unit,
     onProfileClick: () -> Unit,
-    onCartClick: () -> Unit
+    onCartClick: () -> Unit,
+    onFavoritesClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
@@ -42,6 +43,7 @@ fun HomeScreen(
                     selectedIndex = index
                     when (index) {
                         0 -> {} // Home
+                        1 -> onFavoritesClick()
                         2 -> onCartClick()
                         3 -> onProfileClick()
                     }

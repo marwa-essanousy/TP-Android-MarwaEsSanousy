@@ -2,6 +2,7 @@ package com.example.tpkotlin.ui.product
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tpkotlin.data.Entities.Product
 import com.example.tpkotlin.data.Repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -16,6 +17,8 @@ class ProductViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ProductViewState())
     val state: StateFlow<ProductViewState> = _state
+    val favoriteProducts: List<Product>
+        get() = state.value.products.filter { it.isFavorite }
 
     fun toggleFavorite(productId: Int) {
         _state.value = _state.value.copy(
