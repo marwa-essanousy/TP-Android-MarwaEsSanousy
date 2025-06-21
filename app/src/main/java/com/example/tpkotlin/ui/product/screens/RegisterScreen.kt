@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tpkotlin.data.Entities.User
@@ -13,9 +14,11 @@ import com.example.tpkotlin.ui.product.AuthViewModel
 
 @Composable
 fun RegisterScreen(
-    onLoginClick: () -> Unit,
-    viewModel: AuthViewModel = remember { AuthViewModel() }
+    onLoginClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel = remember { AuthViewModel(context.applicationContext as android.app.Application) }
+
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

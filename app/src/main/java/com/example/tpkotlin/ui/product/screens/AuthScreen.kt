@@ -1,8 +1,11 @@
+
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -12,9 +15,11 @@ import com.example.tpkotlin.ui.product.AuthViewModel
 @Composable
 fun AuthScreen(
     navController: NavController,
-    viewModel: AuthViewModel = remember { AuthViewModel() },
     onRegisterClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val viewModel = remember { AuthViewModel(context.applicationContext as android.app.Application) }
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 

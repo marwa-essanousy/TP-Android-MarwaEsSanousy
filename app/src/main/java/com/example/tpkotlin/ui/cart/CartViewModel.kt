@@ -1,12 +1,15 @@
 package com.example.tpkotlin.ui.cart
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import com.example.tpkotlin.data.Repository.SharedPreferencesManager
 
+class CartViewModel(application: Application) : AndroidViewModel(application) {
+    private val sharedPreferencesManager = SharedPreferencesManager(application)
 
-class CartViewModel : ViewModel() {
-    private val _state = mutableStateOf(CartState())
+    private val _state = mutableStateOf(CartState(cartItems = sharedPreferencesManager.getCartItems()))
     val state: State<CartState> = _state
 
     fun onIntent(intent: CartIntent) {
@@ -14,6 +17,8 @@ class CartViewModel : ViewModel() {
             is CartIntent.AddToCart -> {
                 val updatedCart = _state.value.cartItems + intent.product
                 _state.value = _state.value.copy(cartItems = updatedCart)
+                // Save to SharedPreferences
+                sharedPreferencesManager.saveCartItems(updatedCart)
             }
 
             is CartIntent.RemoveOne -> {
@@ -22,13 +27,22 @@ class CartViewModel : ViewModel() {
                 if (index != -1) {
                     updatedCart.removeAt(index)
                     _state.value = _state.value.copy(cartItems = updatedCart)
+                    // Save to SharedPreferences
+                    sharedPreferencesManager.saveCartItems(updatedCart)
                 }
             }
 
             is CartIntent.RemoveFromCart -> {
                 val updatedCart = _state.value.cartItems.filterNot { it.productId == intent.product.productId }
                 _state.value = _state.value.copy(cartItems = updatedCart)
+                // Save to SharedPreferences
+                sharedPreferencesManager.saveCartItems(updatedCart)
             }
         }
+    }
+
+    fun clearCart() {
+        _state.value = _state.value.copy(cartItems = emptyList())
+        sharedPreferencesManager.clearCart()
     }
 }

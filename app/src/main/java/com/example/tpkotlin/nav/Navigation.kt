@@ -4,6 +4,8 @@ import AuthScreen
 import android.annotation.SuppressLint
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,9 +18,8 @@ import com.example.tpkotlin.ui.product.screens.CartScreen
 import com.example.tpkotlin.ui.product.screens.FavoritesScreen
 import com.example.tpkotlin.ui.product.screens.HomeScreen
 import com.example.tpkotlin.ui.product.screens.ProductDetailsScreen
+import com.example.tpkotlin.ui.product.screens.ProfileScreen
 import com.example.tpkotlin.ui.product.screens.RegisterScreen
-
-
 
 object Routes {
     const val Home = "home"
@@ -27,20 +28,27 @@ object Routes {
     const val Register = "register"
     const val Cart = "cart"
     const val Favorites = "favorites"
-
-
+    const val Profile = "profile"
 }
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = viewModel()) {
+fun AppNavigation(viewModel: ProductViewModel) {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val cartViewModel = remember { CartViewModel(context.applicationContext as android.app.Application) }
+
+    // Get cart item count
+    val cartState = cartViewModel.state.value
+    val cartItemCount = cartState.cartItems.size
 
     NavHost(navController = navController, startDestination = Routes.Home) {
 
         composable(Routes.Home) {
             HomeScreen(
-                viewModel,
+                navController = navController,
+                viewModel = viewModel,
+                cartItemCount = cartItemCount,
                 onNavigateToDetails = { productId ->
                     navController.navigate("${Routes.ProductDetails}/$productId")
                 },
@@ -48,7 +56,7 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
                     viewModel.toggleFavorite(productId)
                 },
                 onProfileClick = {
-                    navController.navigate(Routes.Auth)
+                    navController.navigate(Routes.Profile)
                 },
                 onCartClick = {
                     navController.navigate(Routes.Cart)
@@ -67,14 +75,21 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
             val productId = productIdStr.toIntOrNull()
             val product = viewModel.state.value.products.find { it.productId == productId }
             if (product != null) {
-                ProductDetailsScreen(product = product, cartViewModel = cartViewModel)
+                ProductDetailsScreen(
+                    product = product,
+                    cartViewModel = cartViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             } else {
                 Text("Produit non trouvé.")
             }
         }
+
         composable(Routes.Favorites) {
             FavoritesScreen(
+                navController = navController,
                 viewModel = viewModel,
+                cartItemCount = cartItemCount,
                 onNavigateToDetails = { productId ->
                     navController.navigate("${Routes.ProductDetails}/$productId")
                 },
@@ -85,6 +100,15 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
         }
 
         composable(Routes.Auth) {
+            val authViewModel = remember {
+                com.example.tpkotlin.ui.product.AuthViewModel(context.applicationContext as android.app.Application).apply {
+                    // Connect AuthViewModel to ProductViewModel
+                    onUsernameUpdated = { username ->
+                        viewModel.updateUsername(username)
+                    }
+                }
+            }
+
             AuthScreen(
                 navController = navController,
                 onRegisterClick = {
@@ -102,22 +126,27 @@ fun AppNavigation(viewModel: ProductViewModel, cartViewModel: CartViewModel = vi
         composable(Routes.Cart) {
             val cartState = cartViewModel.state.value
             CartScreen(
+                navController = navController,
                 cartItems = cartState.cartItems,
                 cartViewModel = cartViewModel
             )
         }
 
-
-        composable(Routes.Favorites) {
-            FavoritesScreen(
-                viewModel = viewModel,
-                onFavoriteClick = { productId -> viewModel.toggleFavorite(productId) },
-                onNavigateToDetails = { productId ->
-                    navController.navigate("${Routes.ProductDetails}/$productId")
+        composable(Routes.Profile) {
+            val authViewModel = remember {
+                com.example.tpkotlin.ui.product.AuthViewModel(context.applicationContext as android.app.Application).apply {
+                    // Connect AuthViewModel to ProductViewModel
+                    onUsernameUpdated = { username ->
+                        viewModel.updateUsername(username)
+                    }
                 }
+            }
+
+            ProfileScreen(
+                navController = navController,
+                viewModel = authViewModel,
+                cartItemCount = cartItemCount
             )
         }
-
-
     }
 }

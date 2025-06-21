@@ -1,10 +1,11 @@
 package com.example.tpkotlin.ui.product
 
-
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tpkotlin.data.Entities.LoginRequest
 import com.example.tpkotlin.data.Entities.User
+import com.example.tpkotlin.data.Repository.SharedPreferencesManager
 import com.example.tpkotlin.data.Repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,11 +18,26 @@ sealed class AuthState {
     data class Error(val error: String) : AuthState()
 }
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = UserRepository()
+    private val sharedPreferencesManager = SharedPreferencesManager(application)
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
+
+    private val _isLoggedIn = MutableStateFlow(sharedPreferencesManager.isLoggedIn())
+    val isLoggedIn = _isLoggedIn.asStateFlow()
+
+    private val _username = MutableStateFlow(sharedPreferencesManager.getUsername() ?: "")
+    val username = _username.asStateFlow()
+
+    // Callback to update ProductViewModel
+    var onUsernameUpdated: ((String) -> Unit)? = null
+
+    init {
+        // Load saved username on initialization
+        _username.value = sharedPreferencesManager.getUsername() ?: ""
+    }
 
     fun register(user: User) {
         viewModelScope.launch {
@@ -32,7 +48,7 @@ class AuthViewModel : ViewModel() {
                     val message = response.body()?.message ?: "Inscription réussie"
                     _authState.value = AuthState.Success(message)
                 } else {
-                    // lire le message d’erreur du serveur si disponible
+                    // lire le message d'erreur du serveur si disponible
                     val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
                     _authState.value = AuthState.Error("Erreur : $errorMsg")
                 }
@@ -42,9 +58,6 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn = _isLoggedIn.asStateFlow()
-
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -53,6 +66,15 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _authState.value = AuthState.Success(response.body()?.message ?: "Connexion réussie")
                     _isLoggedIn.value = true
+
+                    // Save username to SharedPreferences
+                    sharedPreferencesManager.saveUsername(email)
+                    sharedPreferencesManager.saveLoginState(true)
+                    _username.value = email
+
+                    // Notify ProductViewModel about username update
+                    onUsernameUpdated?.invoke(email)
+
                     // Optionnel: stocker token ici
                 } else {
                     _authState.value = AuthState.Error(response.errorBody()?.string() ?: "Erreur inconnue")
@@ -64,6 +86,17 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    fun logout() {
+        _isLoggedIn.value = false
+        _username.value = ""
+        sharedPreferencesManager.clearUserData()
+        _authState.value = AuthState.Idle
+
+        // Notify ProductViewModel about username update
+        onUsernameUpdated?.invoke("Guest")
+    }
+
     fun resetState() {
         _authState.value = AuthState.Idle
     }
