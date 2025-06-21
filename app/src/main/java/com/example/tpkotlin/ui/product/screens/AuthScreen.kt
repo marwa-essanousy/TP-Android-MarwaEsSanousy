@@ -15,7 +15,7 @@ fun AuthScreen(
     viewModel: AuthViewModel = remember { AuthViewModel() },
     onRegisterClick: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     val authState by viewModel.authState.collectAsState()
@@ -41,9 +41,9 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -71,7 +71,7 @@ fun AuthScreen(
         }
 
         Button(onClick = {
-            viewModel.login(email, password)
+            viewModel.login(username, password) // Ici tu peux renommer login() si besoin
         }) {
             Text("Log In")
         }
