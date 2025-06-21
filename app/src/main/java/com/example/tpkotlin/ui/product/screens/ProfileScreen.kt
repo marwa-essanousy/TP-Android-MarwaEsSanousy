@@ -1,12 +1,26 @@
 package com.example.tpkotlin.ui.product.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.tpkotlin.R
 import com.example.tpkotlin.ui.product.AuthState
 import com.example.tpkotlin.ui.product.AuthViewModel
 import com.example.tpkotlin.ui.product.component.MainLayout
@@ -23,97 +37,102 @@ fun ProfileScreen(
 
     MainLayout(
         navController = navController,
-        selectedIndex = 3, // Profile index
+        selectedIndex = 3,
         cartItemCount = cartItemCount,
-        onItemSelected = { /* Handled in MainLayout */ }
+        onItemSelected = {}
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(innerPadding)
-                .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoggedIn) {
-                // User is logged in - show profile information
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Profile",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
+                Box(contentAlignment = Alignment.Center) {
+                    Image(
+                        painter = painterResource(id = R.drawable.default_avatar),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                        // Display username
-                        Text(
-                            text = "Welcome,",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = username,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                Text(
+                    text = "Bienvenue,",
+                    style = MaterialTheme.typography.titleMedium ,
+                     color = MaterialTheme.colorScheme.secondary
+                )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = username,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-                        // Logout button
-                        Button(
-                            onClick = {
-                                viewModel.logout()
-                                navController.navigate("auth") {
-                                    popUpTo("home") { inclusive = true }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Logout")
+                Spacer(modifier = Modifier.height(32.dp))
+
+                ProfileOption(
+                    icon = Icons.Default.Edit,
+                    text = "Edit Profile",
+                    onClick = { /* TODO */ }
+                )
+
+                ProfileOption(
+                    icon = Icons.Default.List,
+                    text = "My Orders",
+                    onClick = { /* TODO */ }
+                )
+
+                ProfileOption(
+                    icon = Icons.Default.ExitToApp,
+                    text = "Logout",
+                    onClick = {
+                        viewModel.logout()
+                        navController.navigate("auth") {
+                            popUpTo("home") { inclusive = true }
                         }
                     }
-                }
+                )
             } else {
-                // User is not logged in - show login prompt
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = "Not Logged In",
-                            style = MaterialTheme.typography.headlineMedium
+                            color =Color(0xFF555555),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(
-                            text = "Please log in to view your profile",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
                         Button(
                             onClick = { navController.navigate("auth") },
-                            modifier = Modifier.fillMaxWidth()
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4EAB91),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
                             Text("Go to Login")
                         }
                     }
                 }
+
             }
 
-            // Show loading or error states
             if (authState is AuthState.Loading) {
                 Spacer(modifier = Modifier.height(16.dp))
                 CircularProgressIndicator()
@@ -129,4 +148,40 @@ fun ProfileScreen(
             }
         }
     }
+}
+
+@Composable
+fun ProfileOption(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClick: () -> Unit) {
+    val lightGray = Color(0xFFF5F5F5)
+    val darkText = Color(0xFF1E1E1E)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = lightGray
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = Color.Black
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = darkText
+            )
+        }
+    }
+
 }

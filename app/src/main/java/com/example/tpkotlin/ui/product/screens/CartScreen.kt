@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -35,9 +34,9 @@ fun CartScreen(
 ) {
     MainLayout(
         navController = navController,
-        selectedIndex = 2, // Cart index
+        selectedIndex = 2,
         cartItemCount = cartItems.size,
-        onItemSelected = { /* Handled in MainLayout */ }
+        onItemSelected = {}
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -45,14 +44,9 @@ fun CartScreen(
                 .padding(innerPadding)
         ) {
             if (cartItems.isEmpty()) {
-                // Empty cart state
                 EmptyCartState()
             } else {
-                // Cart with items
-                CartWithItems(
-                    cartItems = cartItems,
-                    cartViewModel = cartViewModel
-                )
+                CartWithItems(cartItems, cartViewModel)
             }
         }
     }
@@ -70,10 +64,7 @@ private fun EmptyCartState() {
         Box(
             modifier = Modifier
                 .size(120.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = CircleShape
-                ),
+                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -120,13 +111,9 @@ private fun CartWithItems(
     val groupedItems = cartItems.groupBy { it.productId }
     val total = groupedItems.flatMap { it.value }.sumOf { it.productPrice.toDouble() }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Header
+    Column(modifier = Modifier.fillMaxSize()) {
         CartHeader()
 
-        // Cart items list
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -153,7 +140,6 @@ private fun CartWithItems(
             }
         }
 
-        // Checkout section
         CheckoutSection(
             total = total,
             itemCount = cartItems.size,
@@ -169,9 +155,7 @@ private fun CartHeader() {
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Row(
             modifier = Modifier
@@ -223,9 +207,10 @@ private fun CartItemCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Product image
+            val imageUrl = product.productImages?.firstOrNull()?.url.orEmpty()
+
             Image(
-                painter = rememberImagePainter(product.productImage),
+                painter = rememberImagePainter(imageUrl),
                 contentDescription = product.productTitle,
                 modifier = Modifier
                     .size(80.dp)
@@ -234,10 +219,7 @@ private fun CartItemCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Product details
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = product.productTitle,
                     style = MaterialTheme.typography.titleMedium,
@@ -256,7 +238,6 @@ private fun CartItemCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Quantity controls
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -270,19 +251,13 @@ private fun CartItemCard(
                                 shape = CircleShape
                             )
                     ) {
-                        Text(
-                            text = "-",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                        Text("-", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
 
                     Text(
                         text = quantity.toString(),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        fontWeight = FontWeight.Bold
                     )
 
                     IconButton(
@@ -294,34 +269,20 @@ private fun CartItemCard(
                                 shape = CircleShape
                             )
                     ) {
-                        Text(
-                            text = "+",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                        Text("+", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Remove button
             IconButton(
                 onClick = onRemove,
                 modifier = Modifier
                     .size(40.dp)
-                    .background(
-                        color = Color.Red.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    )
+                    .background(Color.Red.copy(alpha = 0.1f), shape = CircleShape)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Remove",
-                    tint = Color.Red,
-                    modifier = Modifier.size(20.dp)
-                )
+                Icon(Icons.Default.Delete, contentDescription = "Remove", tint = Color.Red)
             }
         }
     }
@@ -338,38 +299,20 @@ private fun CheckoutSection(
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            // Order summary
-            Text(
-                text = "Order Summary",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text("Order Summary", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Summary details
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Items ($itemCount)",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "$itemCount",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
+                Text("Items ($itemCount)", color = Color.Gray)
+                Text("$itemCount", fontWeight = FontWeight.Medium)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -378,16 +321,8 @@ private fun CheckoutSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Subtotal",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "${"%.2f".format(total)} DH",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
+                Text("Subtotal", color = Color.Gray)
+                Text("${"%.2f".format(total)} DH", fontWeight = FontWeight.Medium)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -396,76 +331,42 @@ private fun CheckoutSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Shipping",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "Free",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
+                Text("Shipping", color = Color.Gray)
+                Text("Free", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
             }
 
-            Divider(
-                modifier = Modifier.padding(vertical = 16.dp),
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-            )
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-            // Total
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Total",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "${"%.2f".format(total)} DH",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Text("Total", fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(total)} DH", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Checkout button
             Button(
                 onClick = onCheckout,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Text(
-                    text = "Proceed to Checkout",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Proceed to Checkout", fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Continue shopping button
             OutlinedButton(
-                onClick = { /* Navigate to home */ },
+                onClick = { /* TODO: Navigate to Home */ },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = "Continue Shopping",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Text("Continue Shopping")
             }
         }
     }

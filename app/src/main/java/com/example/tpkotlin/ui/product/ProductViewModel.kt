@@ -75,7 +75,7 @@ class ProductViewModel @Inject constructor(
         } catch (e: Exception) {
             _state.value = ProductViewState(
                 isLoading = false,
-                error = e.message ?: "Erreur lors du chargement des produits"
+                error = e.message ?: "Error while loading products."
             )
         }
     }

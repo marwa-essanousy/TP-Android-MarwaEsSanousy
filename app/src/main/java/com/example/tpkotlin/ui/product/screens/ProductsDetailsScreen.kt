@@ -1,9 +1,9 @@
 package com.example.tpkotlin.ui.product.screens
 
 import androidx.compose.foundation.Image
-import coil.compose.rememberImagePainter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,17 +16,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
 import com.example.tpkotlin.data.Entities.Product
 import com.example.tpkotlin.ui.cart.CartIntent
 import com.example.tpkotlin.ui.cart.CartViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewModel: CartViewModel) {
+fun ProductDetailsScreen(
+    product: Product,
+    onBack: () -> Unit = {},
+    cartViewModel: CartViewModel
+) {
     var showAddedToCartMessage by remember { mutableStateOf(false) }
+
+    val selectedColor = remember {
+        mutableStateOf(product.productImages?.firstOrNull()?.color ?: "")
+    }
+
+    val selectedImage = remember {
+        mutableStateOf(product.productImages?.firstOrNull()?.url ?: "")
+    }
 
     LaunchedEffect(showAddedToCartMessage) {
         if (showAddedToCartMessage) {
@@ -50,7 +62,7 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
 
-                IconButton(onClick = {  },  modifier = Modifier.padding(top = 24.dp) ) {
+                IconButton(onClick = { /* Cart Click */ }) {
                     Box {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
                         Box(
@@ -74,18 +86,31 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = rememberImagePainter(product.productImage),
+                    painter = rememberImagePainter(selectedImage.value),
                     contentDescription = product.productTitle,
-                    modifier = Modifier.size(180.dp).clip(RoundedCornerShape(24.dp))
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(RoundedCornerShape(24.dp))
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = product.productTitle,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = product.description,
+                fontSize = 15.sp,
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +127,6 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                     )
                     Text(
                         text = if (product.quantity > 0) "${product.quantity} available" else "Out of stock",
-                        fontWeight = FontWeight.Medium,
                         fontSize = 16.sp,
                         color = if (product.quantity > 0) Color.Unspecified else Color.Red
                     )
@@ -116,7 +140,6 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                     )
                     Text(
                         text = product.category,
-                        fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
                     )
                 }
@@ -124,18 +147,30 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Description",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp
-            )
-            Text(
-                text = product.description,
-                fontSize = 15.sp,
-                modifier = Modifier.padding(top = 6.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                product.productImages?.forEach { image ->
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(android.graphics.Color.parseColor(image.color)))
+                            .border(
+                                width = 2.dp,
+                                color = if (selectedColor.value == image.color) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                selectedColor.value = image.color
+                                selectedImage.value = image.url
+                            }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
 
-            Spacer(modifier = Modifier.height(24.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -150,8 +185,7 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                     )
                     Text(
                         text = "${product.productPrice} DH",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 22.sp
                     )
                 }
 
@@ -161,7 +195,9 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
                         showAddedToCartMessage = true
                     },
                     shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.width(150.dp).height(48.dp),
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(48.dp),
                     enabled = product.quantity > 0
                 ) {
                     Text("Add to cart", fontSize = 16.sp)
@@ -169,7 +205,6 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
             }
         }
 
-        // Success message overlay
         if (showAddedToCartMessage) {
             Card(
                 modifier = Modifier
@@ -187,15 +222,4 @@ fun ProductDetailsScreen(product: Product, onBack: () -> Unit = {}, cartViewMode
             }
         }
     }
-}
-
-@Composable
-private fun ColorCircle(color: Color) {
-    Box(
-        modifier = Modifier
-            .size(36.dp)
-            .clip(CircleShape)
-            .background(color)
-            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), CircleShape)
-    )
 }

@@ -35,7 +35,6 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
             is CartIntent.RemoveFromCart -> {
                 val updatedCart = _state.value.cartItems.filterNot { it.productId == intent.product.productId }
                 _state.value = _state.value.copy(cartItems = updatedCart)
-                // Save to SharedPreferences
                 sharedPreferencesManager.saveCartItems(updatedCart)
             }
         }

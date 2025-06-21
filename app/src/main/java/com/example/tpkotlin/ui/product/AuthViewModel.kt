@@ -31,11 +31,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _username = MutableStateFlow(sharedPreferencesManager.getUsername() ?: "")
     val username = _username.asStateFlow()
 
-    // Callback to update ProductViewModel
     var onUsernameUpdated: ((String) -> Unit)? = null
 
     init {
-        // Load saved username on initialization
         _username.value = sharedPreferencesManager.getUsername() ?: ""
     }
 
@@ -45,15 +43,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = repository.register(user)
                 if (response.isSuccessful) {
-                    val message = response.body()?.message ?: "Inscription réussie"
+                    val message = response.body()?.message ?: "Registration successful"
                     _authState.value = AuthState.Success(message)
                 } else {
-                    // lire le message d'erreur du serveur si disponible
-                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
-                    _authState.value = AuthState.Error("Erreur : $errorMsg")
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                    _authState.value = AuthState.Error("Error : $errorMsg")
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Erreur : ${e.localizedMessage}")
+                _authState.value = AuthState.Error("Error : ${e.localizedMessage}")
             }
         }
     }
@@ -64,7 +61,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = repository.login(LoginRequest(email, password))
                 if (response.isSuccessful) {
-                    _authState.value = AuthState.Success(response.body()?.message ?: "Connexion réussie")
+                    _authState.value = AuthState.Success(response.body()?.message ?: "Connection successful")
                     _isLoggedIn.value = true
 
                     // Save username to SharedPreferences
@@ -77,11 +74,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                     // Optionnel: stocker token ici
                 } else {
-                    _authState.value = AuthState.Error(response.errorBody()?.string() ?: "Erreur inconnue")
+                    _authState.value = AuthState.Error(response.errorBody()?.string() ?: "Unknown error")
                     _isLoggedIn.value = false
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Erreur : ${e.localizedMessage}")
+                _authState.value = AuthState.Error("Error : ${e.localizedMessage}")
                 _isLoggedIn.value = false
             }
         }
@@ -93,7 +90,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         sharedPreferencesManager.clearUserData()
         _authState.value = AuthState.Idle
 
-        // Notify ProductViewModel about username update
         onUsernameUpdated?.invoke("Guest")
     }
 

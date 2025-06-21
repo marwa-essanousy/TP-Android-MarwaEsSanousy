@@ -81,7 +81,7 @@ fun ProductItem(
             }
 
             Image(
-                painter = rememberImagePainter(product.productImage),
+                painter = rememberImagePainter(product.productImages?.firstOrNull()?.url ?: ""),
                 contentDescription = product.productTitle,
                 modifier = Modifier
                     .size(100.dp)
