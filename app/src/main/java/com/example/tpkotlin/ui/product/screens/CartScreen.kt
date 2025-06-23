@@ -2,6 +2,8 @@ package com.example.tpkotlin.ui.product.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -41,12 +43,13 @@ fun CartScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(innerPadding)
         ) {
             if (cartItems.isEmpty()) {
                 EmptyCartState()
             } else {
-                CartWithItems(cartItems, cartViewModel)
+                CartWithItems(cartItems, cartViewModel, navController)
             }
         }
     }
@@ -106,7 +109,8 @@ private fun EmptyCartState() {
 @Composable
 private fun CartWithItems(
     cartItems: List<Product>,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    navController: NavController
 ) {
     val groupedItems = cartItems.groupBy { it.productId }
     val total = groupedItems.flatMap { it.value }.sumOf { it.productPrice.toDouble() }
@@ -143,8 +147,9 @@ private fun CartWithItems(
         CheckoutSection(
             total = total,
             itemCount = cartItems.size,
-            onCheckout = { /* TODO: Implement checkout */ }
+            navController = navController
         )
+
     }
 }
 
@@ -198,13 +203,14 @@ private fun CartItemCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val imageUrl = product.productImages?.firstOrNull()?.url.orEmpty()
@@ -214,75 +220,78 @@ private fun CartItemCard(
                 contentDescription = product.productTitle,
                 modifier = Modifier
                     .size(80.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(16.dp))
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = product.productTitle,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2
+                    fontWeight = FontWeight.Bold, // Changer de Bold à SemiBold
+                    color = Color.Black
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
                     text = "${product.productPrice} DH",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    color = Color(0xFFD21F3C),
+                    fontWeight = FontWeight.Medium
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .border(1.dp, Color(0xFFE0E0E0), shape = RoundedCornerShape(50))
+                        .background(Color.White, shape = RoundedCornerShape(50))
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = onQuantityDecrease,
+                    // "-" bouton
+                    Text(
+                        text = "-",
+                        fontSize = 14.sp,
+                        color = Color.Black,
                         modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape
-                            )
-                    ) {
-                        Text("-", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    }
+                            .padding(horizontal = 6.dp)
+                            .clickable { onQuantityDecrease() } // action de décrément
+                    )
 
                     Text(
                         text = quantity.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(horizontal = 6.dp)
                     )
 
-                    IconButton(
-                        onClick = onQuantityIncrease,
+                    // "+" bouton
+                    Text(
+                        text = "+",
+                        fontSize = 14.sp,
+                        color = Color.Black,
                         modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = CircleShape
-                            )
-                    ) {
-                        Text("+", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    }
+                            .padding(horizontal = 6.dp)
+                            .clickable { onQuantityIncrease() } // action d'incrément
+                    )
                 }
+
+
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
+            // Remove icon
             IconButton(
                 onClick = onRemove,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.Red.copy(alpha = 0.1f), shape = CircleShape)
+                modifier = Modifier.padding(start = 8.dp)
             ) {
-                Icon(Icons.Default.Delete, contentDescription = "Remove", tint = Color.Red)
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove",
+                    tint = Color.Black
+                )
             }
         }
     }
@@ -292,81 +301,48 @@ private fun CartItemCard(
 private fun CheckoutSection(
     total: Double,
     itemCount: Int,
-    onCheckout: () -> Unit
+    navController: NavController
+
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text("Order Summary", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Items ($itemCount)", color = Color.Gray)
-                Text("$itemCount", fontWeight = FontWeight.Medium)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Items", color = Color.Gray)
+                Text("%.2f DH".format(total), color = Color(0xFFCC0000), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Subtotal", color = Color.Gray)
-                Text("${"%.2f".format(total)} DH", fontWeight = FontWeight.Medium)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Shipping", color = Color.Gray)
-                Text("Free", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                Text("Free", color = Color(0xFF008000), fontWeight = FontWeight.Medium)
             }
 
             Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Total", fontWeight = FontWeight.Bold)
-                Text("${"%.2f".format(total)} DH", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text("%.2f DH".format(total), color = Color(0xFFCC0000), fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = onCheckout,
+                onClick = { navController.navigate("checkout") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {
-                Text("Proceed to Checkout", fontWeight = FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = { /* TODO: Navigate to Home */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Continue Shopping")
+                Text("Pay", fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }

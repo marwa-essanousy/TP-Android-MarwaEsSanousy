@@ -12,11 +12,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.tpkotlin.data.Repository.SharedPreferencesManager
 import com.example.tpkotlin.ui.cart.CartViewModel
 import com.example.tpkotlin.ui.product.ProductViewModel
 import com.example.tpkotlin.ui.product.screens.CartScreen
+import com.example.tpkotlin.ui.product.screens.CheckoutScreen
 import com.example.tpkotlin.ui.product.screens.FavoritesScreen
 import com.example.tpkotlin.ui.product.screens.HomeScreen
+import com.example.tpkotlin.ui.product.screens.OrdersScreen
 import com.example.tpkotlin.ui.product.screens.ProductDetailsScreen
 import com.example.tpkotlin.ui.product.screens.ProfileScreen
 import com.example.tpkotlin.ui.product.screens.RegisterScreen
@@ -37,6 +40,8 @@ fun AppNavigation(viewModel: ProductViewModel) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val cartViewModel = remember { CartViewModel(context.applicationContext as android.app.Application) }
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context.applicationContext) }
+
 
     // Get cart item count
     val cartState = cartViewModel.state.value
@@ -147,6 +152,21 @@ fun AppNavigation(viewModel: ProductViewModel) {
                 viewModel = authViewModel,
                 cartItemCount = cartItemCount
             )
+        }
+
+
+
+
+        composable("checkout") {
+            CheckoutScreen(
+                navController = navController,
+                cartItems = cartViewModel.state.value.cartItems,
+                cartViewModel = cartViewModel,
+                sharedPreferencesManager = sharedPreferencesManager
+            )
+        }
+        composable("orders") {
+            OrdersScreen(navController)
         }
     }
 }

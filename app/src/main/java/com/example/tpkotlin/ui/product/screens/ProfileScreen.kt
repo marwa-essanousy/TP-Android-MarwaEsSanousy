@@ -87,7 +87,9 @@ fun ProfileScreen(
                 ProfileOption(
                     icon = Icons.Default.List,
                     text = "My Orders",
-                    onClick = { /* TODO */ }
+                    onClick = {
+                        navController.navigate("orders")
+                    }
                 )
 
                 ProfileOption(
