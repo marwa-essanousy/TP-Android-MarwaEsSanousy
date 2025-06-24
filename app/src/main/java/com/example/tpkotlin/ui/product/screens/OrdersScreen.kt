@@ -118,67 +118,10 @@ fun OrderCard(order: Order) {
 
 
             Spacer(modifier = Modifier.height(12.dp))
-//
-//            val products = order.products ?: emptyList()
-//            val itemsText = when {
-//                products.isEmpty() -> "No items"
-//                products.size == 1 -> "1 item"
-//                else -> "${products.size} items"
-//            }
-//
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    "Items: $itemsText",
-//                    style = MaterialTheme.typography.titleMedium.copy(
-//                        color = Color.Black,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                )
-//                // Option: Ajouter un indicateur visuel si vide
-//                if (products.isEmpty()) {
-//                    Spacer(modifier = Modifier.width(8.dp))
-//                    Icon(
-//                        imageVector = Icons.Default.Warning,
-//                        contentDescription = "Empty order",
-//                        tint = Color(0xFFFFA000), // Orange
-//                        modifier = Modifier.size(18.dp)
-//                    )
-//                }
-//            }
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//
-//            if (products.isNotEmpty()) {
-//                products.forEachIndexed { index, product ->
-//                    ProductItem(product = product)
-//                    if (index < products.size - 1) {
-//                        Spacer(modifier = Modifier.height(4.dp))
-//                    }
-//                }
-//            } else {
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(40.dp),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        "This order contains no items",
-//                        style = MaterialTheme.typography.bodyMedium.copy(
-//                            color = Color.Gray,
-//                            fontStyle = FontStyle.Italic
-//                        )
-//                    )
-//                }
-//            }
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Total and status
             Divider(color = Color.LightGray, thickness = 1.dp)
             Spacer(modifier = Modifier.height(12.dp))
 

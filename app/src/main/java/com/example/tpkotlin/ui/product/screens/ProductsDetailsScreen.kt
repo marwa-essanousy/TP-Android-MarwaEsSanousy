@@ -1,5 +1,6 @@
 package com.example.tpkotlin.ui.product.screens
 
+import android.R.attr.onClick
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +24,10 @@ import com.example.tpkotlin.data.Entities.Product
 import com.example.tpkotlin.ui.cart.CartIntent
 import com.example.tpkotlin.ui.cart.CartViewModel
 import kotlinx.coroutines.delay
-
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
 @Composable
 fun ProductDetailsScreen(
     product: Product,
@@ -31,6 +35,7 @@ fun ProductDetailsScreen(
     cartViewModel: CartViewModel
 ) {
     var showAddedToCartMessage by remember { mutableStateOf(false) }
+    var isFavorite by remember { mutableStateOf(false) } // État pour le favoris
 
     val selectedColor = remember {
         mutableStateOf(product.productImages?.firstOrNull()?.color ?: "")
@@ -53,18 +58,29 @@ fun ProductDetailsScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .padding(horizontal = 8.dp).padding(top= 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { onBack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                IconButton(
+                    onClick = { onBack() },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(Icons.Default.ArrowBack, "Back", tint = Color.Black)
                 }
 
-                IconButton(onClick = { /* Cart Click */ }) {
+                IconButton(
+                    onClick = { /* Cart Click */ },
+                    modifier = Modifier.size(48.dp)
+                ) {
                     Box {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                        Icon(Icons.Default.ShoppingCart, "Cart", tint = Color.Black)
+                        // Badge simple (sans count)
                         Box(
                             modifier = Modifier
                                 .size(8.dp)
@@ -74,9 +90,7 @@ fun ProductDetailsScreen(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            // Image du produit
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,14 +110,30 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Titre avec bouton favoris
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = product.productTitle,
+                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(1f)
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                IconButton(
+                    onClick = { isFavorite = !isFavorite }
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favoris",
+                        tint = if (isFavorite) Color.Black else Color.Gray
 
-            Text(
-                text = product.productTitle,
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.headlineSmall
-            )
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -115,6 +145,7 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Stock et catégorie
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -147,6 +178,7 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Sélecteur de couleur
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
@@ -171,7 +203,9 @@ fun ProductDetailsScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Prix et bouton Ajouter au panier
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -205,6 +239,7 @@ fun ProductDetailsScreen(
             }
         }
 
+        // Message "Added to cart"
         if (showAddedToCartMessage) {
             Card(
                 modifier = Modifier

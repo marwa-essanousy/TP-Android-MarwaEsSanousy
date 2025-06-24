@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.tpkotlin.data.Entities.Product
 import com.example.tpkotlin.ui.product.ProductViewModel
 import com.example.tpkotlin.ui.product.component.MainLayout
 import com.example.tpkotlin.ui.product.component.ProductsList
@@ -28,7 +27,7 @@ fun FavoritesScreen(
 
     MainLayout(
         navController = navController,
-        selectedIndex = 1, // Favorites index
+        selectedIndex = 1,
         cartItemCount = cartItemCount,
         onItemSelected = { /* Handled in MainLayout */ }
     ) { innerPadding ->
@@ -38,7 +37,6 @@ fun FavoritesScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // Header with clear favorites button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -54,11 +52,11 @@ fun FavoritesScreen(
                     IconButton(
                         onClick = { viewModel.clearFavorites() }
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear all favorites",
-                            tint = Color.Red
-                        )
+//                        Icon(
+//                            imageVector = Icons.Default.Clear,
+//                            contentDescription = "Clear all favorites",
+//                            tint = Color.Red
+//                        )
                     }
                 }
             }

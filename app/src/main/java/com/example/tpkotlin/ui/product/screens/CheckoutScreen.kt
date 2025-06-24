@@ -84,19 +84,17 @@ fun CheckoutScreen(
 
                 Text("Checkout",
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(top = 32.dp, bottom = 8.dp)
                 )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 4.dp))
 
-            // Order Summary
             Text(
                 "Order Summary",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            // List of items
             cartItems.forEach { product ->
                 OrderItemRow(product)
             }
@@ -110,7 +108,7 @@ fun CheckoutScreen(
             ) {
                 Text("Total", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "$${"%.2f".format(cartItems.sumOf { it.productPrice.toDouble() })}",
+                    "${"%.2f".format(cartItems.sumOf { it.productPrice.toDouble() })} DH",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -154,7 +152,6 @@ fun CheckoutScreen(
                 )
             }
 
-            // Error message
             if (showError) {
                 Text(
                     "Please fill in all required fields correctly.",
@@ -495,7 +492,7 @@ private fun processPayment(
     val newOrder = Order(
         id = orderId,
         date = orderDate,
-        totalAmount = totalAmount.toInt(),
+        totalAmount = totalAmount.toInt() ,
         status = "Completed"
     )
 

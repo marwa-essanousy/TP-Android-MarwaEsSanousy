@@ -47,7 +47,7 @@ fun CartScreen(
                 .padding(innerPadding)
         ) {
             if (cartItems.isEmpty()) {
-                EmptyCartState()
+                EmptyCartState(navController)
             } else {
                 CartWithItems(cartItems, cartViewModel, navController)
             }
@@ -56,7 +56,7 @@ fun CartScreen(
 }
 
 @Composable
-private fun EmptyCartState() {
+private fun EmptyCartState(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,7 +97,7 @@ private fun EmptyCartState() {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { /* Navigate to home */ },
+            onClick = { navController.navigate("home") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
