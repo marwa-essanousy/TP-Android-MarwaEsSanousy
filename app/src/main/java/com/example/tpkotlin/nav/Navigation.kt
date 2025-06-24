@@ -23,6 +23,7 @@ import com.example.tpkotlin.ui.product.screens.OrdersScreen
 import com.example.tpkotlin.ui.product.screens.ProductDetailsScreen
 import com.example.tpkotlin.ui.product.screens.ProfileScreen
 import com.example.tpkotlin.ui.product.screens.RegisterScreen
+import com.example.tpkotlin.ui.product.screens.UserInfoScreen
 
 object Routes {
     const val Home = "home"
@@ -157,14 +158,33 @@ fun AppNavigation(viewModel: ProductViewModel) {
 
 
 
+        composable("user_info") {
+            UserInfoScreen(navController) { fullName, phone, address ->
+                navController.currentBackStackEntry?.savedStateHandle?.apply {
+                    set("fullName", fullName)
+                    set("phone", phone)
+                    set("address", address)
+                }
+                navController.navigate("checkout")
+            }
+        }
+
         composable("checkout") {
+            val fullName = navController.previousBackStackEntry?.savedStateHandle?.get<String>("fullName") ?: ""
+            val phone = navController.previousBackStackEntry?.savedStateHandle?.get<String>("phone") ?: ""
+            val address = navController.previousBackStackEntry?.savedStateHandle?.get<String>("address") ?: ""
+
             CheckoutScreen(
                 navController = navController,
-                cartItems = cartViewModel.state.value.cartItems,
+                cartItems = cartState.cartItems, // replace with your real cart
                 cartViewModel = cartViewModel,
-                sharedPreferencesManager = sharedPreferencesManager
+                sharedPreferencesManager =sharedPreferencesManager,
+                userFullName = fullName,
+                userPhone = phone,
+                userAddress = address
             )
         }
+
         composable("orders") {
             OrdersScreen(navController)
         }

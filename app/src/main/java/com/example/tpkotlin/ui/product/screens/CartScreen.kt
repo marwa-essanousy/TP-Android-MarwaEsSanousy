@@ -335,7 +335,7 @@ private fun CheckoutSection(
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = { navController.navigate("checkout") },
+                onClick = {navController.navigate("user_info")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

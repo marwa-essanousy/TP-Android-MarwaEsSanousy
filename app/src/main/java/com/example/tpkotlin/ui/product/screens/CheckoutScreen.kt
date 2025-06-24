@@ -1,29 +1,49 @@
 package com.example.tpkotlin.ui.product.screens
 
-
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.tpkotlin.R
 import com.example.tpkotlin.data.Entities.Order
 import com.example.tpkotlin.data.Entities.Product
 import com.example.tpkotlin.data.Repository.SharedPreferencesManager
 import com.example.tpkotlin.ui.cart.CartViewModel
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalContext
+import android.content.Context
+import android.util.Patterns
+import coil.compose.AsyncImage
+
+sealed class PaymentMethod(val name: String, val icon: Int) {
+    object PayPal : PaymentMethod("PayPal", R.drawable.paypal)
+    object Visa : PaymentMethod("Visa", R.drawable.visa)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +51,10 @@ fun CheckoutScreen(
     navController: NavController,
     cartItems: List<Product>,
     cartViewModel: CartViewModel,
-    sharedPreferencesManager: SharedPreferencesManager
+    sharedPreferencesManager: SharedPreferencesManager,
+    userFullName: String,
+    userPhone: String,
+    userAddress: String
 ) {
     var fullName by remember { mutableStateOf("") }
     var cardNumber by remember { mutableStateOf("") }
@@ -39,201 +62,462 @@ fun CheckoutScreen(
     var cvv by remember { mutableStateOf("") }
     var isPaymentCompleted by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    var selectedPaymentMethod by remember { mutableStateOf<PaymentMethod?>(null) }
+
+    val context = LocalContext.current
+    val paymentMethods = listOf(
+        PaymentMethod.PayPal,
+        PaymentMethod.Visa,
+    )
 
     if (isPaymentCompleted) {
+        PaymentSuccessScreen(navController)
+    } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Icon(
-                imageVector = Icons.Default.Done,
-                contentDescription = "Success",
-                tint = Color(0xFF4CAF50),
-                modifier = Modifier.size(96.dp)
-            )
             Spacer(modifier = Modifier.height(16.dp))
+
+
+                Text("Checkout",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Order Summary
             Text(
-                "Thank you for your order!",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
+                "Order Summary",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.padding(vertical = 8.dp)
             )
-            Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = true }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .padding(bottom = 12.dp)
-            ) {
-                Text("Back to Home")
+            // List of items
+            cartItems.forEach { product ->
+                OrderItemRow(product)
             }
 
-            Button(
-                onClick = {
-                    navController.navigate("orders") {
-                        popUpTo("home") { inclusive = false }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(0.6f),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Total
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("View Orders", color = Color.White)
+                Text("Total", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "$${"%.2f".format(cartItems.sumOf { it.productPrice.toDouble() })}",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
             }
-        }
-    }
-    else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text("Payment Details", style = MaterialTheme.typography.headlineSmall)
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Payment Method Selection
+            Text(
+                "Payment Method",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(paymentMethods) { method ->
+                    PaymentMethodCard(
+                        method = method,
+                        isSelected = selectedPaymentMethod == method,
+                        onSelected = { selectedPaymentMethod = method }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Logos de paiement (placeholders)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                PaymentLogo(
-                    color = Color(0xFF003087),
-                    text = "PayPal"
-                )
-                PaymentLogo(
-                    color = Color(0xFF1A1F71),
-                    text = "Visa"
-                )
-                PaymentLogo(
-                    color = Color(0xFFE60023),
-                    text = "MasterCard"
-                )
-                PaymentLogo(
-                    color = Color(0xFF0072CE),
-                    text = "AmEx"
+            // Credit Card Form (only shown if Visa/MasterCard/Amex is selected)
+            if (selectedPaymentMethod != PaymentMethod.PayPal) {
+                CreditCardForm(
+                    fullName = fullName,
+                    cardNumber = cardNumber,
+                    expiryDate = expiryDate,
+                    cvv = cvv,
+                    onFullNameChange = { fullName = it },
+                    onCardNumberChange = { cardNumber = it },
+                    onExpiryDateChange = { expiryDate = it },
+                    onCvvChange = { cvv = it }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                label = { Text("Full Name") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
-                value = cardNumber,
-                onValueChange = {
-                    // Autoriser seulement chiffres et espaces, max 19 chars (ex: "1234 5678 9012 3456")
-                    if (it.length <= 19 && it.all { c -> c.isDigit() || c == ' ' }) cardNumber = it
-                },
-                label = { Text("Card Number") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                leadingIcon = { Icon(Icons.Default.CreditCard, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = expiryDate,
-                    onValueChange = {
-                        if (it.length <= 5) expiryDate = it // Format MM/YY
-                    },
-                    label = { Text("Expiry Date (MM/YY)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-
-                OutlinedTextField(
-                    value = cvv,
-                    onValueChange = {
-                        if (it.length <= 4 && it.all { c -> c.isDigit() }) cvv = it
-                    },
-                    label = { Text("CVV") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
+            // Error message
             if (showError) {
                 Text(
-                    "Please fill in all fields correctly.",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall
+                    "Please fill in all required fields correctly.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
             }
+
 
             Button(
                 onClick = {
-                    if (fullName.isBlank() || cardNumber.length < 12 || expiryDate.length != 5 || cvv.length !in 3..4) {
-                        showError = true
-                    } else {
+                    if (validateForm(context, selectedPaymentMethod, fullName, cardNumber, expiryDate, cvv)) {
                         showError = false
-
-                        val orderId = System.currentTimeMillis().toInt()
-                        val orderDate = java.time.LocalDate.now().toString()
-                        val totalAmount: Double = cartItems.sumOf { it.productPrice.toDouble() }
-
-                        val newOrder = Order(
-                            id = orderId,
-                            date = orderDate,
-                            totalAmount = totalAmount,
-                            status = "Completed"
+                        processPayment(
+                            cartItems = cartItems,
+                            cartViewModel = cartViewModel,
+                            sharedPreferencesManager = sharedPreferencesManager,
+                            onSuccess = { isPaymentCompleted = true }
                         )
-
-                        // Save order to SharedPreferences
-                        sharedPreferencesManager.addOrder(newOrder)
-
-                        // Clear cart
-                        cartViewModel.clearCart()
-
-                        // Show success UI
-                        isPaymentCompleted = true
+                    } else {
+                        showError = true
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(vertical = 16.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0070BA))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Confirm Payment", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    if (selectedPaymentMethod == PaymentMethod.PayPal) "Pay with PayPal" else "Confirm Payment",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
+
         }
     }
 }
 
 @Composable
-fun PaymentLogo(color: Color, text: String) {
+fun PaymentSuccessScreen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                .border(
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Done,
+                contentDescription = "Success",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            "Payment Successful!",
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            "Your order has been placed successfully. You will receive a confirmation email shortly.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = { navController.navigate("home") { popUpTo("home") { inclusive = true } } },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Text("Back to Home")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = { navController.navigate("orders") { popUpTo("home") { inclusive = false } } },
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(48.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Text("View Orders")
+        }
+    }
+}
+
+@Composable
+fun OrderItemRow(product: Product) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = product.productImages?.firstOrNull()?.url,
+            contentDescription = product.productTitle,
+            modifier = Modifier
+                .size(64.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop,
+
+        )
+
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                product.productTitle,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+            )
+            Text(
+                "${"%.2f".format(product.productPrice.toDouble())} DAM",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray
+            )
+        }
+
+        Text(
+            "Qty: 1",
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+fun PaymentMethodCard(
+    method: PaymentMethod,
+    isSelected: Boolean,
+    onSelected: () -> Unit
+) {
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
+
     Box(
         modifier = Modifier
-            .size(64.dp)
+            .width(100.dp)
+            .height(60.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(color),
+            .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(12.dp))
+            .background(backgroundColor)
+            .clickable { onSelected() }
+            .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+        Image(
+            painter = painterResource(id = method.icon),
+            contentDescription = method.name,
+            modifier = Modifier.size(40.dp)
+        )
     }
+}
+
+@Composable
+fun CreditCardForm(
+    fullName: String,
+    cardNumber: String,
+    expiryDate: String,
+    cvv: String,
+    onFullNameChange: (String) -> Unit,
+    onCardNumberChange: (String) -> Unit,
+    onExpiryDateChange: (String) -> Unit,
+    onCvvChange: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
+        OutlinedTextField(
+            value = fullName,
+            onValueChange = onFullNameChange,
+            label = { Text("fullName ") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = cardNumber,
+            onValueChange = { newValue ->
+                if (newValue.all { it.isDigit() || it == ' ' } && newValue.length <= 19) {
+                    onCardNumberChange(newValue)
+                }
+            },
+            label = { Text("cardNumber") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(
+                value = expiryDate,
+                onValueChange = { newValue ->
+                    if (newValue.length <= 5) {
+                        val cleaned = newValue.filter { it.isDigit() }
+                        when {
+                            cleaned.isEmpty() -> onExpiryDateChange("")
+                            cleaned.length <= 2 -> {
+                                val month = cleaned.take(2)
+                                if (month.toIntOrNull() in 1..12) {
+                                    onExpiryDateChange(month)
+                                }
+                            }
+                            else -> {
+                                val month = cleaned.take(2)
+                                val year = cleaned.drop(2).take(2)
+                                if (month.toIntOrNull() in 1..12) {
+                                    onExpiryDateChange("$month/$year")
+                                }
+                            }
+                        }
+                    }
+                },
+                label = { Text("Expiration (MM/AA)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                isError = !isValidDate(expiryDate) && expiryDate.isNotBlank()
+            )
+
+            OutlinedTextField(
+                value = cvv,
+                onValueChange = { newValue ->
+                    if (newValue.length <= 3 && newValue.all { it.isDigit() }) {
+                        onCvvChange(newValue)
+                    }
+                },
+                label = { Text("CVV") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+        }
+    }
+}
+
+private fun validateForm(
+    context: Context,
+    paymentMethod: PaymentMethod?,
+    fullName: String,
+    cardNumber: String,
+    expiryDate: String,
+    cvv: String
+): Boolean {
+    if (paymentMethod == null) {
+        Toast.makeText(context, "Veuillez sélectionner un mode de paiement", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    return when (paymentMethod) {
+        is PaymentMethod.PayPal -> true
+
+        is PaymentMethod.Visa -> {
+            val cleanedCardNumber = cardNumber.replace(" ", "")
+
+            when {
+                fullName.isBlank() -> {
+                    Toast.makeText(context, "Veuillez entrer le nom du titulaire", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                cleanedCardNumber.length != 16 -> {
+                    Toast.makeText(context, "Le numéro de carte doit contenir 16 chiffres", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                !cleanedCardNumber.startsWith("4") -> {
+                    Toast.makeText(context, "Numéro de carte Visa invalide (doit commencer par 4)", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                expiryDate.length != 5 -> {
+                    Toast.makeText(context, "Date d'expiration invalide (format MM/AA requis)", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                cvv.length != 3 -> {
+                    Toast.makeText(context, "Le CVV doit contenir exactement 3 chiffres", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                else -> true
+            }
+        }
+    }
+}
+private fun processPayment(
+    cartItems: List<Product>,
+    cartViewModel: CartViewModel,
+    sharedPreferencesManager: SharedPreferencesManager,
+    onSuccess: () -> Unit
+) {
+    val orderId = System.currentTimeMillis().toInt()
+    val orderDate = java.time.LocalDate.now().toString()
+    val totalAmount: Double = cartItems.sumOf { it.productPrice.toDouble() }
+
+    val newOrder = Order(
+        id = orderId,
+        date = orderDate,
+        totalAmount = totalAmount.toInt(),
+        status = "Completed"
+    )
+
+    sharedPreferencesManager.addOrder(newOrder)
+
+    cartViewModel.clearCart()
+
+    onSuccess()
+}
+
+private fun isValidDate(date: String): Boolean {
+    if (date.length != 5 || date[2] != '/') return false
+
+    val (monthStr, yearStr) = date.split("/")
+    val month = monthStr.toIntOrNull() ?: return false
+    val year = yearStr.toIntOrNull() ?: return false
+
+    val currentYear = java.time.LocalDate.now().year % 100
+    return month in 1..12 && year >= currentYear
+}
+
+
+private fun isValidEmail(email: String): Boolean {
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }

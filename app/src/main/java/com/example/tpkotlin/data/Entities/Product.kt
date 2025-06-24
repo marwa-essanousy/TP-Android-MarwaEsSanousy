@@ -1,10 +1,8 @@
 package com.example.tpkotlin.data.Entities
-
 data class ProductImage(
     val color: String,
     val url: String
 )
-
 
 data class Product(
     val productId: Int,

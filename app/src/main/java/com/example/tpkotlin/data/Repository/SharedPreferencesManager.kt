@@ -3,6 +3,7 @@ package com.example.tpkotlin.data.Repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.example.tpkotlin.data.Entities.Order
 import com.example.tpkotlin.data.Entities.Product
 import com.google.gson.Gson
@@ -88,19 +89,29 @@ class SharedPreferencesManager(context: Context) {
     }
 
     fun getOrders(): List<Order> {
-        val ordersJson = sharedPreferences.getString(KEY_ORDERS, "[]")
-        val type = object : TypeToken<List<Order>>() {}.type
         return try {
-            gson.fromJson(ordersJson, type) ?: emptyList()
+            val ordersJson = sharedPreferences.getString(KEY_ORDERS, null)
+            if (ordersJson.isNullOrBlank()) emptyList()
+            else {
+                val type = object : TypeToken<List<Order>>() {}.type
+                gson.fromJson<List<Order>>(ordersJson, type) ?: emptyList()
+            }
         } catch (e: Exception) {
+            Log.e("Orders", "Error reading orders: ${e.message}", e)
             emptyList()
+
         }
     }
+
 
     fun addOrder(order: Order) {
         val currentOrders = getOrders().toMutableList()
         currentOrders.add(order)
         saveOrders(currentOrders)
     }
+    fun clearCartItems() {
+        sharedPreferences.edit().remove(KEY_CART_ITEMS).apply()
+    }
+
 
 }
