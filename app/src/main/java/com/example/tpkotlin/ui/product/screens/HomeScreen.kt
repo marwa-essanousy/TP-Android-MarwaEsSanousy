@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -22,6 +23,12 @@ import com.example.tpkotlin.ui.product.ProductIntent
 import com.example.tpkotlin.ui.product.ProductViewModel
 import com.example.tpkotlin.ui.product.component.MainLayout
 import com.example.tpkotlin.ui.product.component.ProductsList
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
+data class Category(
+    val id: Int,
+    val name: String,
+    val icon: ImageVector)
 
 @Composable
 fun HomeScreen(
@@ -36,8 +43,17 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val username by viewModel.username.collectAsState()
-    val categories = listOf("All", "accessories", "clothing", "shoes")
-    var selectedCategory by remember { mutableStateOf(categories[0]) }
+
+    val categories = remember {
+        listOf(
+            Category(1, "All", Icons.Filled.AllInclusive),
+            Category(2, "accessories", Icons.Filled.ShoppingBag),
+            Category(3, "clothing", Icons.Filled.Woman),
+            Category(4, "shoes", Icons.Filled.Style  )
+        )
+    }
+
+    var selectedCategory by remember { mutableStateOf("All") }
 
     LaunchedEffect(Unit) {
         viewModel.handleIntent(ProductIntent.LoadProducts)
@@ -45,7 +61,7 @@ fun HomeScreen(
 
     MainLayout(
         navController = navController,
-        selectedIndex = 0, // Home index
+        selectedIndex = 0,
         cartItemCount = cartItemCount,
         onItemSelected = { /* Handled in MainLayout */ }
     ) { innerPadding ->
@@ -53,14 +69,15 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White)
         ) {
             WelcomeSection(username = username)
 
-            CategoriesSection(
+            ImageCategoriesSection(
                 categories = categories,
                 selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
+                onCategorySelected = { category ->
+                    selectedCategory = category.name
+                }
             )
 
             when {
@@ -90,6 +107,84 @@ fun HomeScreen(
 }
 
 @Composable
+private fun ImageCategoriesSection(
+    categories: List<Category>,
+    selectedCategory: String,
+    onCategorySelected: (Category) -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = "Categories",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            items(categories) { category ->
+                ImageCategoryChip(
+                    category = category,
+                    isSelected = category.name == selectedCategory,
+                    onClick = { onCategorySelected(category) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageCategoryChip(
+    category: Category,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(80.dp)
+    ) {
+        Card(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .size(60.dp),
+            shape = CircleShape,
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSelected)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {            Icon(
+            imageVector = category.icon,
+            contentDescription = category.name,
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxSize(),
+            tint = if (isSelected)
+                MaterialTheme.colorScheme.onPrimary
+            else
+                MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = category.name,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (isSelected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
 private fun WelcomeSection(username: String) {
     Card(
         modifier = Modifier
@@ -107,7 +202,6 @@ private fun WelcomeSection(username: String) {
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar circle
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -127,7 +221,6 @@ private fun WelcomeSection(username: String) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Welcome text
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -154,7 +247,6 @@ private fun WelcomeSection(username: String) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-
                 Text(
                     text = "Discover amazing products today!",
                     style = MaterialTheme.typography.bodyMedium,
@@ -165,67 +257,3 @@ private fun WelcomeSection(username: String) {
     }
 }
 
-@Composable
-private fun CategoriesSection(
-    categories: List<String>,
-    selectedCategory: String,
-    onCategorySelected: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        Text(
-            text = "Categories",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
-            items(categories) { category ->
-                CategoryChip(
-                    category = category,
-                    isSelected = category == selectedCategory,
-                    onClick = { onCategorySelected(category) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CategoryChip(
-    category: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 4.dp else 2.dp
-        )
-    ) {
-        Text(
-            text = category,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            color = if (isSelected)
-                MaterialTheme.colorScheme.onPrimary
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-        )
-    }
-}
