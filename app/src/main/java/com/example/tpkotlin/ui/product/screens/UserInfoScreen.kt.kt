@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 
 
 @Composable
@@ -28,54 +30,94 @@ fun UserInfoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Enter Your Information", style = MaterialTheme.typography.titleLarge)
+        // Titre avec style amélioré
+        Text(
+            text = "Enter Your Information",
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // Champ Full Name avec bordure arrondie
         OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
             label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(12.dp),
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+//            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
+        // Champ Phone Number
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
             label = { Text("Phone Number") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(12.dp),
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+//            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
+        // Champ Address
         OutlinedTextField(
             value = address,
             onValueChange = { address = it },
             label = { Text("Address") },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(12.dp),
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+//            ),
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // Bouton avec style amélioré
         Button(
             onClick = {
                 if (fullName.isNotBlank() && phone.isNotBlank() && address.isNotBlank()) {
                     onUserInfoSubmitted(fullName, phone, address)
                 } else {
-                    Toast.makeText(navController.context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        navController.context,
+                        "Please fill all fields",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 8.dp
+            )
         ) {
-            Text("Continue to Payment")
+            Text(
+                "Continue to Payment",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            )
         }
     }
 }

@@ -47,9 +47,10 @@ fun HomeScreen(
     val categories = remember {
         listOf(
             Category(1, "All", Icons.Filled.AllInclusive),
-            Category(2, "accessories", Icons.Filled.ShoppingBag),
+            Category(2, "Bags", Icons.Filled.ShoppingBag),
             Category(3, "clothing", Icons.Filled.Woman),
-            Category(4, "shoes", Icons.Filled.Style  )
+            Category(5, "accessories", Icons.Filled.Watch ),
+            Category(4, "shoes", Icons.Filled.Style  ),
         )
     }
 

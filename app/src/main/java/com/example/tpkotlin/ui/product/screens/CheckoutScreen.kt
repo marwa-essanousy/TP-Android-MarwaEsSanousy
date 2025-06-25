@@ -60,15 +60,13 @@ fun CheckoutScreen(
     var cardNumber by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
     var cvv by remember { mutableStateOf("") }
+    var paypalEmail by remember { mutableStateOf("") }
     var isPaymentCompleted by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var selectedPaymentMethod by remember { mutableStateOf<PaymentMethod?>(null) }
 
     val context = LocalContext.current
-    val paymentMethods = listOf(
-        PaymentMethod.PayPal,
-        PaymentMethod.Visa,
-    )
+    val paymentMethods = listOf(PaymentMethod.PayPal, PaymentMethod.Visa)
 
     if (isPaymentCompleted) {
         PaymentSuccessScreen(navController)
@@ -80,15 +78,11 @@ fun CheckoutScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-
-
                 Text("Checkout",
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(top = 32.dp, bottom = 8.dp)
                 )
-
-            Divider(modifier = Modifier.padding(vertical = 4.dp))
-
+            Divider(modifier = Modifier.padding(vertical = 2.dp))
             Text(
                 "Order Summary",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -100,8 +94,6 @@ fun CheckoutScreen(
             }
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            // Total
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -112,16 +104,14 @@ fun CheckoutScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
-
             Spacer(modifier = Modifier.height(16.dp))
             Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            // Payment Method Selection
             Text(
                 "Payment Method",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+
 
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -137,41 +127,80 @@ fun CheckoutScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            // Dynamic Form based on selected payment method
+            when (selectedPaymentMethod) {
+                PaymentMethod.PayPal -> {
+                    OutlinedTextField(
+                        value = paypalEmail,
+                        onValueChange = { paypalEmail = it },
+                        label = { Text("PayPal Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        isError = paypalEmail.isNotBlank() && !isValidEmail(paypalEmail)
+                    )
 
-            // Credit Card Form (only shown if Visa/MasterCard/Amex is selected)
-            if (selectedPaymentMethod != PaymentMethod.PayPal) {
-                CreditCardForm(
-                    fullName = fullName,
-                    cardNumber = cardNumber,
-                    expiryDate = expiryDate,
-                    cvv = cvv,
-                    onFullNameChange = { fullName = it },
-                    onCardNumberChange = { cardNumber = it },
-                    onExpiryDateChange = { expiryDate = it },
-                    onCvvChange = { cvv = it }
-                )
+                    if (paypalEmail.isNotBlank() && !isValidEmail(paypalEmail)) {
+                        Text(
+                            "Please enter a valid email address",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
+                PaymentMethod.Visa -> {
+                    CreditCardForm(
+                        fullName = fullName,
+                        cardNumber = cardNumber,
+                        expiryDate = expiryDate,
+                        cvv = cvv,
+                        onFullNameChange = { fullName = it },
+                        onCardNumberChange = { cardNumber = it },
+                        onExpiryDateChange = { expiryDate = it },
+                        onCvvChange = { cvv = it }
+                    )
+                }
+
+                null -> {
+                    // No payment method selected
+                    Text(
+                        "Please select a payment method",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                }
             }
 
-            if (showError) {
-                Text(
-                    "Please fill in all required fields correctly.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-
-
+            // Payment Button
             Button(
                 onClick = {
-                    if (validateForm(context, selectedPaymentMethod, fullName, cardNumber, expiryDate, cvv)) {
-                        showError = false
+                    val isValid = when (selectedPaymentMethod) {
+                        PaymentMethod.PayPal -> {
+                            if (paypalEmail.isBlank() || !isValidEmail(paypalEmail)) {
+                                Toast.makeText(context, "Please enter a valid PayPal email", Toast.LENGTH_SHORT).show()
+                                false
+                            } else true
+                        }
+
+                        PaymentMethod.Visa -> {
+                            validateForm(context, selectedPaymentMethod, fullName, cardNumber, expiryDate, cvv)
+                        }
+
+                        null -> {
+                            Toast.makeText(context, "Please select a payment method", Toast.LENGTH_SHORT).show()
+                            false
+                        }
+                    }
+
+                    if (isValid) {
                         processPayment(
                             cartItems = cartItems,
                             cartViewModel = cartViewModel,
-                            sharedPreferencesManager = sharedPreferencesManager,
-                            onSuccess = { isPaymentCompleted = true }
-                        )
+                            sharedPreferencesManager = sharedPreferencesManager
+                        ) {
+                            isPaymentCompleted = true
+                        }
                     } else {
                         showError = true
                     }
@@ -180,22 +209,21 @@ fun CheckoutScreen(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
                 shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    if (selectedPaymentMethod == PaymentMethod.PayPal) "Pay with PayPal" else "Confirm Payment",
-                    style = MaterialTheme.typography.titleMedium
-                )
+            ) { Text(
+                when (selectedPaymentMethod) {
+                    PaymentMethod.PayPal -> "Pay with PayPal"
+                    else -> "Confirm Payment"
+                }
+            )
             }
-
         }
     }
 }
 
+private fun isValidEmail(email: String): Boolean {
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
 @Composable
 fun PaymentSuccessScreen(navController: NavController) {
     Column(
@@ -515,6 +543,3 @@ private fun isValidDate(date: String): Boolean {
 }
 
 
-private fun isValidEmail(email: String): Boolean {
-    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
-}
