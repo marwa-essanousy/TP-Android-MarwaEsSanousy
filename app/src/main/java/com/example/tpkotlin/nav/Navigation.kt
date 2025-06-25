@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,7 +43,6 @@ fun AppNavigation(viewModel: ProductViewModel) {
     val sharedPreferencesManager = remember { SharedPreferencesManager(context.applicationContext) }
 
 
-    // Get cart item count
     val cartState = cartViewModel.state.value
     val cartItemCount = cartState.cartItems.size
 
@@ -141,7 +139,6 @@ fun AppNavigation(viewModel: ProductViewModel) {
         composable(Routes.Profile) {
             val authViewModel = remember {
                 com.example.tpkotlin.ui.product.AuthViewModel(context.applicationContext as android.app.Application).apply {
-                    // Connect AuthViewModel to ProductViewModel
                     onUsernameUpdated = { username ->
                         viewModel.updateUsername(username)
                     }
@@ -154,10 +151,6 @@ fun AppNavigation(viewModel: ProductViewModel) {
                 cartItemCount = cartItemCount
             )
         }
-
-
-
-
         composable("user_info") {
             UserInfoScreen(navController) { fullName, phone, address ->
                 navController.currentBackStackEntry?.savedStateHandle?.apply {
@@ -176,7 +169,7 @@ fun AppNavigation(viewModel: ProductViewModel) {
 
             CheckoutScreen(
                 navController = navController,
-                cartItems = cartState.cartItems, // replace with your real cart
+                cartItems = cartState.cartItems,
                 cartViewModel = cartViewModel,
                 sharedPreferencesManager =sharedPreferencesManager,
                 userFullName = fullName,
@@ -184,7 +177,6 @@ fun AppNavigation(viewModel: ProductViewModel) {
                 userAddress = address
             )
         }
-
         composable("orders") {
             OrdersScreen(navController)
         }

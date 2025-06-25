@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.tpkotlin.data.Entities.Product
@@ -34,7 +33,7 @@ fun OrdersScreen(navController: NavController) {
     }
 
     Scaffold(
-        containerColor = Color.White, // Fond blanc pour tout l'écran
+        containerColor = Color.White,
         topBar = {
             TopAppBar(
                 title = {
@@ -42,8 +41,8 @@ fun OrdersScreen(navController: NavController) {
                         "My Orders",
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 24.sp // Taille personnalisée
-                        ) // Texte noir
+                            fontSize = 24.sp
+                        )
                     )
                 },
                 navigationIcon = {
@@ -51,12 +50,12 @@ fun OrdersScreen(navController: NavController) {
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black // Icône noire
+                            tint = Color.Black
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White // Fond blanc pour la TopAppBar
+                    containerColor = Color.White
                 )
             )
         }
@@ -70,7 +69,7 @@ fun OrdersScreen(navController: NavController) {
             ) {
                 Text(
                     "You have no orders yet.",
-                    style = TextStyle(color = Color.Black) // Texte noir
+                    style = TextStyle(color = Color.Black)
                 )
             }
         } else {

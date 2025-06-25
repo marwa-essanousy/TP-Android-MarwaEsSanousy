@@ -1,9 +1,6 @@
 package com.example.tpkotlin.data.Entities
 
-//data class OrderItem(
-//    val product: Product,
-//    val orderedQuantity: Int
-//)
+
 data class Order(
     val id: Int,
     val date: String,

@@ -32,18 +32,9 @@ fun ProductsList(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(products) { product ->
-            ProductItem(
-                product = product,
+            ProductItem(product = product,
                 onNavigateToDetails = onNavigateToDetails,
-                onFavoriteClick = { productId ->
-                    favoriteIds = if (favoriteIds.contains(productId)) {
-                        favoriteIds - productId
-                    } else {
-                        favoriteIds + productId
-                    }
-                    onFavoriteClick(productId)
-                },
-                isFavorite = favoriteIds.contains(product.productId)
+                onFavoriteClick = onFavoriteClick
             )
         }
     }

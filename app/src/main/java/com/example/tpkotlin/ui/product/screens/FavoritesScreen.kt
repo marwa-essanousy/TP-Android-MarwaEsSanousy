@@ -51,12 +51,8 @@ fun FavoritesScreen(
                 if (favoriteProducts.isNotEmpty()) {
                     IconButton(
                         onClick = { viewModel.clearFavorites() }
+
                     ) {
-//                        Icon(
-//                            imageVector = Icons.Default.Clear,
-//                            contentDescription = "Clear all favorites",
-//                            tint = Color.Red
-//                        )
                     }
                 }
             }

@@ -26,8 +26,7 @@ import com.example.tpkotlin.ui.cart.CartViewModel
 import kotlinx.coroutines.delay
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ShoppingCart
+
 @Composable
 fun ProductDetailsScreen(
     product: Product,
@@ -110,7 +109,6 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Titre avec bouton favoris
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -145,7 +143,6 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Stock et catégorie
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -178,7 +175,6 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sélecteur de couleur
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
@@ -205,7 +201,6 @@ fun ProductDetailsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Prix et bouton Ajouter au panier
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -239,7 +234,6 @@ fun ProductDetailsScreen(
             }
         }
 
-        // Message "Added to cart"
         if (showAddedToCartMessage) {
             Card(
                 modifier = Modifier

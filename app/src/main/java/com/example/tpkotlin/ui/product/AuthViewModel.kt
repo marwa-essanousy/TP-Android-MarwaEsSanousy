@@ -64,15 +64,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     _authState.value = AuthState.Success(response.body()?.message ?: "Connection successful")
                     _isLoggedIn.value = true
 
-                    // Save username to SharedPreferences
                     sharedPreferencesManager.saveUsername(email)
                     sharedPreferencesManager.saveLoginState(true)
                     _username.value = email
 
-                    // Notify ProductViewModel about username update
                     onUsernameUpdated?.invoke(email)
 
-                    // Optionnel: stocker token ici
                 } else {
                     _authState.value = AuthState.Error(response.errorBody()?.string() ?: "Unknown error")
                     _isLoggedIn.value = false

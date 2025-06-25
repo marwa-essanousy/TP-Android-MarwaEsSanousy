@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -60,10 +61,8 @@ class ProductViewModel @Inject constructor(
         try {
             val products = repository.getProducts()
 
-            // Load favorite product IDs from SharedPreferences
             val favoriteProductIds = sharedPreferencesManager.getFavoriteProductIds()
 
-            // Update products with favorite status
             val productsWithFavorites = products.map { product ->
                 product.copy(isFavorite = favoriteProductIds.contains(product.productId))
             }
@@ -82,7 +81,7 @@ class ProductViewModel @Inject constructor(
 
     fun clearFavorites() {
         val updatedProducts = _state.value.products.map { it.copy(isFavorite = false) }
-        _state.value = _state.value.copy(products = updatedProducts)
+        _state.update { it.copy(products = updatedProducts) }
         sharedPreferencesManager.clearFavorites()
     }
 

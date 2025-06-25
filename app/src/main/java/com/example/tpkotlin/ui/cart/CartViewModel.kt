@@ -17,7 +17,6 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
             is CartIntent.AddToCart -> {
                 val updatedCart = _state.value.cartItems + intent.product
                 _state.value = _state.value.copy(cartItems = updatedCart)
-                // Save to SharedPreferences
                 sharedPreferencesManager.saveCartItems(updatedCart)
             }
 
@@ -27,7 +26,6 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
                 if (index != -1) {
                     updatedCart.removeAt(index)
                     _state.value = _state.value.copy(cartItems = updatedCart)
-                    // Save to SharedPreferences
                     sharedPreferencesManager.saveCartItems(updatedCart)
                 }
             }

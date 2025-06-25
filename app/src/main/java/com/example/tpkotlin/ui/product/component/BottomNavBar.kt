@@ -34,7 +34,7 @@ fun BottomNavBar(
                 icon = {
                     Box {
                         Icon(icons[index], contentDescription = item)
-                        // Show cart badge only for cart tab
+
                         if (index == 2 && cartItemCount > 0) {
                             Box(
                                 modifier = Modifier

@@ -37,7 +37,6 @@ fun ProductItem(
     product: Product,
     onNavigateToDetails: (Int) -> Unit,
     onFavoriteClick: (Int) -> Unit,
-    isFavorite: Boolean
 ) {
     Card(
         modifier = Modifier
@@ -63,18 +62,12 @@ fun ProductItem(
                     onClick = { onFavoriteClick(product.productId) },
                     modifier = Modifier
                         .size(36.dp)
-                        .background(
-                            color = if (isFavorite)
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                            else
-                                Color.Transparent,
-                            shape = CircleShape
-                        )
+
                 ) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = if (isFavorite) MaterialTheme.colorScheme.primary else Color.Gray,
+                        imageVector = if (product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (product.isFavorite) "Remove from favorites" else "Add to favorites",
+                        tint = if (product.isFavorite) Color.Black else Color.Gray,
                         modifier = Modifier.size(28.dp)
                     )
                 }

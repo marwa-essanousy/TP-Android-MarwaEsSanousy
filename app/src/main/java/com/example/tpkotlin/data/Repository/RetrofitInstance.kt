@@ -1,6 +1,5 @@
 package com.example.tpkotlin.data.Repository
 
-// data/Repository/RetrofitInstance.kt
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
