@@ -127,7 +127,8 @@ fun ProductDetailsScreen(
                     Icon(
                         imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favoris",
-                        tint = if (isFavorite) Color.Black else Color.Gray
+                        Modifier.size(35.dp),
+                        tint = if (isFavorite) Color.Black else Color.Gray,
 
                     )
                 }
