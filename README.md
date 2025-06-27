@@ -1,14 +1,21 @@
 Marwa Es Sanousy
 
 
-🛒 E-Commerce Android App
+🛒 ClickShop E-Commerce Android App
 
 
 Homepage of an e-commerce application featuring:
 Welcome message for the user
+
 Product categories (All, Bags, Clothing, Accessories)
+
+
 Featured products with prices in MAD (DH)
+
+
 Navigation bar (Home, Favorites, Cart, Profile)
+
+
 ![image](https://github.com/user-attachments/assets/30d8403a-8961-4ff9-938b-e3064aec97c7)
 
 
@@ -16,13 +23,20 @@ Navigation bar (Home, Favorites, Cart, Profile)
 
 Sign Up Page
 This is a simple sign-up page interface with the following elements:
+
 Username input , Email input field, Password input field, "Sign Up" button , "Already registered? Log in" link 
+
+
 ![image](https://github.com/user-attachments/assets/64793a4a-06a3-4569-b2e6-f5851e592275)
 
 
  Login Page
  This is a simple login page interface with the following elements:
+
+ 
  "Welcome Back" title, Username field, Password field, "Log In" button, "Create an Account" link
+
+ 
  ![image](https://github.com/user-attachments/assets/0bca8851-70c5-4d9c-bfdb-8d5b00ffe36e)
 
 
@@ -61,6 +75,8 @@ Checkout Information Page
 ![image](https://github.com/user-attachments/assets/b2062767-8a9a-4de1-928c-e941ee39fec2)
 
 
+
+Checkout & Payment Page
 ![image](https://github.com/user-attachments/assets/cf460a8d-d587-4e63-b102-a65d8a9b23c7)
 
 
@@ -89,7 +105,8 @@ Favorites Section
 
 
 
-
+User Profile Page
+![image](https://github.com/user-attachments/assets/bb81f413-a4b9-4bc2-afb5-c27a1fe82b44)
 
 
 
