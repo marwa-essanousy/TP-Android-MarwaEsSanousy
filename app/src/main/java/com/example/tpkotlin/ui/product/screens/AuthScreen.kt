@@ -1,5 +1,3 @@
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -68,7 +66,7 @@ fun AuthScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
 
-            )
+                )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -84,7 +82,7 @@ fun AuthScreen(
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
 
-            )
+                )
 
             Spacer(modifier = Modifier.height(24.dp))
 

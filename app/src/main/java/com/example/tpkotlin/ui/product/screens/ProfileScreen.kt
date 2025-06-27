@@ -64,9 +64,9 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Bienvenue,",
+                    text = "Welcome,",
                     style = MaterialTheme.typography.titleMedium ,
-                     color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary
                 )
 
                 Text(
